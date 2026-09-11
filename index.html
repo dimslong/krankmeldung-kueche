@@ -49,10 +49,13 @@ textarea{min-height:100px;resize:vertical}button{cursor:pointer}
 @media(max-width:900px){.year-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.year-grid{grid-template-columns:1fr}.mini-day{min-height:44px}}
  .shift-print{display:none}
+.header-tools{display:flex;align-items:center;gap:8px}.lang-select{width:auto;min-width:150px;padding:9px 10px}.theme-btn{border:0;background:#eef2f6;border-radius:8px;padding:10px 12px;font-size:18px}.month-stats{margin-top:14px}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.stats-person{border:1px solid #e1e5ea;border-radius:10px;padding:10px}.stats-person b{display:block;margin-bottom:6px}.holiday{background:#fff3cd!important}.holiday .num{color:#9a6700}.holiday-label{display:block;font-size:8px;line-height:1.1;margin-top:3px;color:#9a6700;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.dark{background:#111827;color:#e5e7eb}body.dark header,body.dark .card,body.dark .tile,body.dark .modalbox,body.dark .mini-month{background:#1f2937;color:#e5e7eb}body.dark .muted{color:#aeb8c6}body.dark input,body.dark select,body.dark textarea{background:#111827;color:#e5e7eb;border-color:#4b5563}body.dark .secondary,body.dark .theme-btn{background:#374151;color:#f3f4f6}body.dark .table th,body.dark .table td{border-color:#4b5563}body.dark .table th,body.dark .count-row td{background:#273244!important}body.dark .table td:first-child,body.dark .table th:first-child{background:#1f2937}body.dark .mini-head,body.dark .mini-dow{background:#273244}body.dark .mini-day{border-color:#374151}body.dark .mini-day.empty{background:#1b2431}body.dark .vac-form,body.dark .help,body.dark .note{background:#273244;border-color:#4b5563}body.dark .item{border-color:#4b5563}
+@media(max-width:760px){.header-tools{gap:5px}.lang-select{min-width:0;width:44px;font-size:0}.lang-select option{font-size:16px}.theme-btn{padding:9px}.month-stats{padding:14px}}
 @media print{
 @page{size:A4 landscape;margin:5mm}
 html,body{width:100%;background:#fff!important}
-header,nav,.print-hide,.admin-only,.toolbar,.savebar{display:none!important}
+header,nav,.print-hide,.admin-only,.toolbar,.savebar,#monthStats{display:none!important}
 .layout{display:block;min-height:0}.content{max-width:none;width:100%;padding:0;margin:0}
 .card{box-shadow:none!important;border:0!important;padding:0!important;margin:0!important}
 .page{display:none!important}.page.active{display:block!important}
@@ -76,7 +79,7 @@ body{background:#fff!important}
 </style>
 </head>
 <body>
-<header><div class="logo">CARECON · Küche</div><button class="chef" id="adminBtn">Chef</button></header>
+<header><div class="logo">CARECON · Küche</div><div class="header-tools"><select id="languageSelect" class="lang-select" aria-label="Language"><option value="de">🇩🇪 Deutsch</option><option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="hr">🇭🇷 Hrvatski</option><option value="uk">🇺🇦 Українська</option></select><button class="theme-btn" id="themeBtn" title="Dark mode">🌙</button><button class="chef" id="adminBtn">Chef</button></div></header>
 
 <div class="layout">
 <nav>
@@ -92,7 +95,7 @@ body{background:#fff!important}
 
 <main class="content">
 <section id="home" class="page active">
-<div class="card"><h1>Willkommen im Küchen-Portal</h1><p class="muted">Alle wichtigen Informationen für die Küche an einem Ort.</p>
+<div class="card"><h1 id="welcomeTitle">Willkommen im Küchen-Portal</h1><p class="muted" id="welcomeText">Alle wichtigen Informationen für die Küche an einem Ort.</p>
 <div class="grid">
 <div class="tile" data-go="krank"><div class="icon">🤒</div><h3>Krankmeldung</h3><p class="muted">Krankmeldung schnell senden.</p></div>
 <div class="tile" data-go="arbeitsplan"><div class="icon">📅</div><h3>Arbeitsplan</h3><p class="muted">Monatsplan ansehen.</p></div>
@@ -118,10 +121,11 @@ body{background:#fff!important}
 
 <section id="arbeitsplan" class="page">
 <div class="card">
-<div class="row"><div><h1>📅 Arbeitsplan</h1><p class="muted">Monatsplan. Mitarbeiter können nur ansehen, Chef kann bearbeiten.</p></div>
-<div class="toolbar"><button class="secondary" id="prevMonth">←</button><div class="month-title" id="monthLabel"></div><button class="secondary" id="nextMonth">→</button><button class="secondary" id="todayMonth">Dieser Monat</button><button class="primary print-hide" id="printPlan">🖨️ Drucken / PDF</button></div></div>
+<div class="row"><div><h1 id="workplanHeading">📅 Arbeitsplan</h1><p class="muted">Monatsplan. Mitarbeiter können nur ansehen, Chef kann bearbeiten.</p></div>
+<div class="toolbar"><button class="secondary" id="prevMonth">←</button><div class="month-title" id="monthLabel"></div><button class="secondary" id="nextMonth">→</button><button class="secondary" id="todayMonth">Dieser Monat</button><button class="secondary admin-only print-hide" id="copyPrevMonth">🔄 Vormonat kopieren</button><button class="primary print-hide" id="printPlan">🖨️ Drucken / PDF</button></div></div>
 <div class="help">Unter jedem Tag steht die Anzahl der Mitarbeiter in den Schichten <b>1, 3, 4, 5, 6 und 7</b>.</div>
 <div class="tablewrap" style="margin-top:14px"><table class="table" id="workTable"><thead></thead><tbody></tbody></table></div>
+<div class="card month-stats" id="monthStats"><h2>🏆 Monatsstatistik</h2><div id="monthStatsList"></div></div>
 <div class="savebar" id="saveBar"><b>Es gibt ungespeicherte Änderungen.</b> <button class="primary" id="savePlan">💾 Arbeitsplan speichern</button></div>
 </div>
 <div class="card admin-only"><h2>👥 Mitarbeiter</h2><div class="formgrid"><div><label>Neuer Mitarbeiter</label><input id="newEmployee" placeholder="Vorname Nachname"></div><div style="display:flex;align-items:end"><button class="primary" id="addEmployee">+ Mitarbeiter hinzufügen</button></div></div><div id="employeeAdminList"></div></div>
@@ -186,6 +190,26 @@ function formatDate(s){return s?new Date(s+"T00:00:00").toLocaleDateString("de-D
 function monthStart(){return new Date(planMonth.getFullYear(),planMonth.getMonth(),1)}
 function monthEnd(){return new Date(planMonth.getFullYear(),planMonth.getMonth()+1,0)}
 function monthLabel(){return planMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"})}
+
+const I18N={
+ de:{navHome:"Startseite",navSick:"Krankmeldung",navPlan:"Arbeitsplan",navShifts:"Schichtpläne",navVac:"Urlaubsplan",navMenu:"Menüplan",navNotice:"Mitteilungen",navAdmin:"Admin",welcome:"Willkommen im Küchen-Portal",welcomeText:"Alle wichtigen Informationen für die Küche an einem Ort.",monthStats:"Monatsstatistik",copyPrev:"🔄 Vormonat kopieren",today:"Dieser Monat",print:"🖨️ Drucken / PDF",save:"💾 Arbeitsplan speichern",work:"Arbeit",free:"Frei",vac:"Urlaub",sick:"Krank",shiftCount:"Anzahl pro Schicht",holidays:"Feiertag"},
+ en:{navHome:"Home",navSick:"Sick leave",navPlan:"Work plan",navShifts:"Shift plans",navVac:"Vacation plan",navMenu:"Menu plan",navNotice:"Announcements",navAdmin:"Admin",welcome:"Welcome to the kitchen portal",welcomeText:"All important kitchen information in one place.",monthStats:"Monthly statistics",copyPrev:"🔄 Copy previous month",today:"This month",print:"🖨️ Print / PDF",save:"💾 Save work plan",work:"Work",free:"Off",vac:"Vacation",sick:"Sick",shiftCount:"Staff per shift",holidays:"Public holiday"},
+ fr:{navHome:"Accueil",navSick:"Arrêt maladie",navPlan:"Planning de travail",navShifts:"Plannings des équipes",navVac:"Planning des congés",navMenu:"Menu",navNotice:"Annonces",navAdmin:"Admin",welcome:"Bienvenue sur le portail cuisine",welcomeText:"Toutes les informations importantes de la cuisine au même endroit.",monthStats:"Statistiques du mois",copyPrev:"🔄 Copier le mois précédent",today:"Ce mois",print:"🖨️ Imprimer / PDF",save:"💾 Enregistrer le planning",work:"Travail",free:"Libre",vac:"Congé",sick:"Malade",shiftCount:"Effectif par équipe",holidays:"Jour férié"},
+ hr:{navHome:"Početna",navSick:"Bolovanje",navPlan:"Raspored rada",navShifts:"Smjene",navVac:"Godišnji odmor",navMenu:"Jelovnik",navNotice:"Obavijesti",navAdmin:"Admin",welcome:"Dobrodošli na kuhinjski portal",welcomeText:"Sve važne informacije za kuhinju na jednom mjestu.",monthStats:"Mjesečna statistika",copyPrev:"🔄 Kopiraj prethodni mjesec",today:"Ovaj mjesec",print:"🖨️ Ispis / PDF",save:"💾 Spremi raspored",work:"Rad",free:"Slobodno",vac:"Godišnji",sick:"Bolovanje",shiftCount:"Broj zaposlenih po smjeni",holidays:"Blagdan"},
+ uk:{navHome:"Головна",navSick:"Лікарняний",navPlan:"Робочий план",navShifts:"Плани змін",navVac:"Відпустка",navMenu:"Меню",navNotice:"Повідомлення",navAdmin:"Адмін",welcome:"Ласкаво просимо до кухонного порталу",welcomeText:"Уся важлива інформація для кухні в одному місці.",monthStats:"Статистика за місяць",copyPrev:"🔄 Копіювати попередній місяць",today:"Цей місяць",print:"🖨️ Друк / PDF",save:"💾 Зберегти робочий план",work:"Робота",free:"Вільно",vac:"Відпустка",sick:"Лікарняний",shiftCount:"Кількість працівників по зміні",holidays:"Свято"}
+};
+let currentLang=localStorage.getItem("carecon_lang")||"de";
+function tr(k){return (I18N[currentLang]||I18N.de)[k]||I18N.de[k]||k}
+function applyLanguage(){
+ document.documentElement.lang=currentLang;
+ const nav=[['home','navHome'],['krank','navSick'],['arbeitsplan','navPlan'],['schichten','navShifts'],['urlaub','navVac'],['menu','navMenu'],['mitteilungen','navNotice'],['admin','navAdmin']];
+ const icons={home:'🏠 ',krank:'🤒 ',arbeitsplan:'📅 ',schichten:'👨‍🍳 ',urlaub:'🏖️ ',menu:'🍽️ ',mitteilungen:'📢 ',admin:'⚙️ '};
+ nav.forEach(([id,k])=>{const b=document.querySelector(`nav button[data-page="${id}"]`);if(b)b.textContent=icons[id]+tr(k)});
+ const map={workplanHeading:'📅 '+tr('navPlan'),monthStats:'🏆 '+tr('monthStats'),copyPrevMonth:tr('copyPrev'),todayMonth:tr('today'),printPlan:tr('print'),printVac:tr('print'),savePlan:tr('save'),welcomeTitle:tr('welcome'),welcomeText:tr('welcomeText')};
+ Object.entries(map).forEach(([id,text])=>{const e=$(id);if(e)e.textContent=text});
+ renderWorkplan(); renderVacationCalendar();
+}
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('carecon_theme',document.body.classList.contains('dark')?'dark':'light');$('themeBtn').textContent=document.body.classList.contains('dark')?'☀️':'🌙'}
 
 function setAdminUI(){
 document.querySelectorAll(".admin-only").forEach(e=>e.style.display=isAdmin?(e.tagName==="BUTTON"?"inline-block":"block"):"none");
@@ -255,15 +279,25 @@ async function deleteSick(id){if(!confirm("Krankmeldung wirklich löschen?"))ret
 
 async function renderWorkplan(){
  $("monthLabel").textContent=monthLabel();
+ $("workplanHeading").textContent='📅 '+tr('navPlan')+' – '+monthLabel();
  const s=monthStart(),e=monthEnd(),days=[];for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(new Date(d));
  const dates=days.map(iso);const {data,error}=await db.from("arbeitsplan").select("*").gte("work_date",dates[0]).lte("work_date",dates[dates.length-1]);
  const entries=error?[]:(data||[]),map={};entries.forEach(x=>map[x.employee+"|"+x.work_date]=x.shift);pendingPlan={};
- let head="<tr><th>Mitarbeiter</th>"+days.map(d=>`<th>${d.toLocaleDateString("de-DE",{weekday:"short"})}<br><span class="small">${String(d.getDate()).padStart(2,"0")}</span></th>`).join("")+"<th>Arbeit</th><th>Frei</th><th>Urlaub</th><th>Krank</th></tr>";$('workTable').querySelector('thead').innerHTML=head;
- let body="";const workShifts=["1","3","4","5","6","7"];
- names.forEach(n=>{let stats={work:0,free:0,urlaub:0,krank:0};body+=`<tr><td>${escapeHtml(n)}</td>`;days.forEach(d=>{const ds=iso(d),v=map[n+"|"+ds]||"";if(workShifts.includes(v))stats.work++;else if(v==="Frei"||!v)stats.free++;else if(v==="Urlaub")stats.urlaub++;else if(v==="Krank")stats.krank++;if(isAdmin)body+=`<td class="shiftcell editable"><select data-name="${escapeHtml(n)}" data-date="${ds}" onchange="planChanged(this)"><option value="">—</option>${shiftOptions.map(o=>`<option value="${o}" ${v===o?"selected":""}>${o}</option>`).join("")}</select><span class="shift-print">${escapeHtml(v||"—")}</span></td>`;else body+=`<td class="shiftcell"><span class="shift-print">${escapeHtml(v||"—")}</span></td>`});body+=`<td><b>${stats.work}</b></td><td><b>${stats.free}</b></td><td>${stats.urlaub}</td><td>${stats.krank}</td></tr>`});
- body+=`<tr class="count-row"><td>👥 Anzahl pro Schicht</td>`;days.forEach(d=>{const ds=iso(d),c={};shiftOptions.forEach(sh=>c[sh]=0);names.forEach(n=>{const v=map[n+"|"+ds];if(c[v]!==undefined)c[v]++});body+=`<td>${workShifts.map(sh=>sh+": "+c[sh]).join("<br>")}</td>`});body+="<td colspan=4>—</td></tr>";
- $("workTable").querySelector("tbody").innerHTML=body;$('saveBar').style.display=isAdmin&&Object.keys(pendingPlan).length?"block":"none";if(isAdmin)renderEmployeeAdmin();
+ let head='<tr><th>Mitarbeiter</th>'+days.map(d=>`<th class="${getHoliday(iso(d))?'holiday':''}">${d.toLocaleDateString(currentLang==='de'?'de-DE':currentLang,{weekday:'short'})}<br><span class="small">${String(d.getDate()).padStart(2,'0')}</span>${getHoliday(iso(d))?`<span class="holiday-label">${escapeHtml(getHoliday(iso(d)).name)}</span>`:''}</th>`).join('')+`<th>${tr('work')}</th><th>${tr('free')}</th><th>${tr('vac')}</th><th>${tr('sick')}</th></tr>`;
+ $('workTable').querySelector('thead').innerHTML=head;
+ let body='';const workShifts=['1','3','4','5','6','7'];
+ const stats=[];
+ names.forEach(n=>{let st={work:0,free:0,urlaub:0,krank:0,shifts:{1:0,3:0,4:0,5:0,6:0,7:0}};body+=`<tr><td>${escapeHtml(n)}</td>`;days.forEach(d=>{const ds=iso(d),v=map[n+'|'+ds]||'';if(workShifts.includes(v)){st.work++;st.shifts[v]++}else if(v==='Frei'||!v)st.free++;else if(v==='Urlaub')st.urlaub++;else if(v==='Krank')st.krank++;const hol=getHoliday(ds);if(isAdmin)body+=`<td class="shiftcell editable ${hol?'holiday':''}"><select data-name="${escapeHtml(n)}" data-date="${ds}" onchange="planChanged(this)"><option value="">—</option>${shiftOptions.map(o=>`<option value="${o}" ${v===o?'selected':''}>${o}</option>`).join('')}</select><span class="shift-print">${escapeHtml(v||'—')}</span></td>`;else body+=`<td class="shiftcell ${hol?'holiday':''}"><span class="shift-print">${escapeHtml(v||'—')}</span></td>`});body+=`<td><b>${st.work}</b></td><td><b>${st.free}</b></td><td>${st.urlaub}</td><td>${st.krank}</td></tr>`;stats.push({name:n,...st})});
+ body+=`<tr class="count-row"><td>👥 ${tr('shiftCount')}</td>`;days.forEach(d=>{const ds=iso(d),c={};workShifts.forEach(sh=>c[sh]=0);names.forEach(n=>{let v=pendingPlan[n+'|'+ds];if(v===undefined)v=map[n+'|'+ds]||'';if(c[v]!==undefined)c[v]++});body+=`<td>${workShifts.map(sh=>sh+': '+c[sh]).join('<br>')}</td>`});body+='<td colspan="4">—</td></tr>';
+ $('workTable').querySelector('tbody').innerHTML=body;
+ const sg=$('monthStatsList'); if(sg) sg.innerHTML='<div class="stats-grid">'+stats.map(st=>`<div class="stats-person"><b>${escapeHtml(st.name)}</b><div>${tr('work')}: <b>${st.work}</b> · ${tr('free')}: ${st.free} · ${tr('vac')}: ${st.urlaub} · ${tr('sick')}: ${st.krank}</div><div class="small">Schicht 1: ${st.shifts[1]} · 3: ${st.shifts[3]} · 4: ${st.shifts[4]} · 5: ${st.shifts[5]} · 6: ${st.shifts[6]} · 7: ${st.shifts[7]}</div></div>`).join('')+'</div>';
+ $('saveBar').style.display=isAdmin&&Object.keys(pendingPlan).length?'block':'none';if(isAdmin)renderEmployeeAdmin();
 }
+
+function easterSunday(year){const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;return new Date(year,month-1,day)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return iso(x)}
+function getHoliday(ds){const d=new Date(ds+'T00:00:00'),y=d.getFullYear(),fixed={[y+'-01-01']:'Neujahr',[y+'-05-01']:'Tag der Arbeit',[y+'-10-03']:'Tag der Deutschen Einheit',[y+'-10-31']:'Reformationstag',[y+'-12-25']:'1. Weihnachtstag',[y+'-12-26']:'2. Weihnachtstag',[y+'-01-06']:'Heilige Drei Könige',[y+'-11-01']:'Allerheiligen'};if(fixed[ds])return {name:fixed[ds]};const e=iso(easterSunday(y));const moving={[addDays(e,-2)]:'Karfreitag',[addDays(e,1)]:'Ostermontag',[addDays(e,39)]:'Christi Himmelfahrt',[addDays(e,50)]:'Pfingstmontag',[addDays(e,60)]:'Fronleichnam'};return moving[ds]?{name:moving[ds]}:null}
+async function copyPreviousMonth(){if(!isAdmin)return;const prev=new Date(planMonth.getFullYear(),planMonth.getMonth()-1,1),ps=iso(prev),pe=iso(new Date(prev.getFullYear(),prev.getMonth()+1,0));const {data,error}=await db.from('arbeitsplan').select('*').gte('work_date',ps).lte('work_date',pe);if(error){alert('Fehler: '+error.message);return}if(!data?.length){alert('Im Vormonat gibt es keinen Arbeitsplan zum Kopieren.');return}if(!confirm('Arbeitsplan vom Vormonat in diesen Monat kopieren? Urlaub und Krank werden nicht übernommen.'))return;let copied=0;for(const x of data){if(x.shift==='Urlaub'||x.shift==='Krank')continue;const oldDay=Number(x.work_date.slice(8,10)),last=new Date(planMonth.getFullYear(),planMonth.getMonth()+1,0).getDate();if(oldDay>last)continue;const target=iso(new Date(planMonth.getFullYear(),planMonth.getMonth(),oldDay));const r=x.shift?await db.from('arbeitsplan').upsert({employee:x.employee,work_date:target,shift:x.shift},{onConflict:'employee,work_date'}):await db.from('arbeitsplan').delete().eq('employee',x.employee).eq('work_date',target);if(r.error){alert('Fehler: '+r.error.message);return}copied++}await renderWorkplan();alert(`${copied} Einträge kopiert.`)}
 
 function planChanged(el){pendingPlan[el.dataset.name+"|"+el.dataset.date]=el.value;$("saveBar").style.display="block";updateCountsOnly()}
 function updateCountsOnly(){
@@ -338,20 +372,10 @@ async function loadVacations(){
  if(isAdmin)renderVacationList();
 }
 function renderVacationCalendar(){
- const cal=$("vacationCalendar"); const months=[]; const dows=["Mo","Di","Mi","Do","Fr","Sa","So"];
- for(let m=0;m<12;m++){
-  const first=new Date(vacationYear,m,1), last=new Date(vacationYear,m+1,0), offset=(first.getDay()+6)%7;
-  let html=`<div class="mini-month"><div class="mini-head">${first.toLocaleDateString("de-DE",{month:"long"})}</div><div class="mini-days">${dows.map(x=>`<div class="mini-dow">${x}</div>`).join("")}`;
-  for(let i=0;i<offset;i++)html+='<div class="mini-day empty"></div>';
-  for(let day=1;day<=last.getDate();day++){
-   const ds=iso(new Date(vacationYear,m,day));
-   const people=vacationData.filter(v=>v.date_from<=ds&&v.date_to>=ds).map(v=>v.employee);
-   html+=`<div class="mini-day"><span class="num">${day}</span>${people.map(n=>`<span class="vac-name" title="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join("")}</div>`;
-  }
-  html+='</div></div>'; months.push(html);
- }
- cal.innerHTML=months.join("");
+ const cal=$("vacationCalendar");const months=[];const dows=['Mo','Di','Mi','Do','Fr','Sa','So'];
+ for(let m=0;m<12;m++){const first=new Date(vacationYear,m,1),last=new Date(vacationYear,m+1,0),offset=(first.getDay()+6)%7;let html=`<div class="mini-month"><div class="mini-head">${first.toLocaleDateString(currentLang,{month:'long'})}</div><div class="mini-days">${dows.map(x=>`<div class="mini-dow">${x}</div>`).join('')}`;for(let i=0;i<offset;i++)html+='<div class="mini-day empty"></div>';for(let day=1;day<=last.getDate();day++){const ds=iso(new Date(vacationYear,m,day)),people=vacationData.filter(v=>v.date_from<=ds&&v.date_to>=ds).map(v=>v.employee),hol=getHoliday(ds);html+=`<div class="mini-day ${hol?'holiday':''}"><span class="num">${day}</span>${hol?`<span class="holiday-label">${escapeHtml(hol.name)}</span>`:''}${people.map(n=>`<span class="vac-name" title="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join('')}</div>`}html+='</div></div>';months.push(html)}cal.innerHTML=months.join('');
 }
+
 function renderVacationList(){
  const box=$("vacationList");
  if(!vacationData.length){box.innerHTML='<p class="muted">Keine Urlaube eingetragen.</p>';return}
@@ -414,10 +438,15 @@ $("newEmail").value="";loadEmails();
 async function deleteEmail(id){if(!confirm("E-Mail-Adresse löschen?"))return;const {error}=await db.from("email_empfaenger").delete().eq("id",id);if(error)alert("Fehler: "+error.message);else loadEmails()}
 $("emailTile").onclick=()=>{if(isAdmin){$("emailCard").scrollIntoView({behavior:"smooth"})}};
 
+$('copyPrevMonth').onclick=copyPreviousMonth;
+$('languageSelect').value=currentLang;$('languageSelect').onchange=()=>{currentLang=$('languageSelect').value;localStorage.setItem('carecon_lang',currentLang);applyLanguage()};
+if(localStorage.getItem('carecon_theme')==='dark'){$('themeBtn').textContent='☀️';document.body.classList.add('dark')}
+$('themeBtn').onclick=toggleTheme;
+
 (async()=>{
 const {data:{session}}=await db.auth.getSession();
 if(session?.user?.email===ADMIN_EMAIL)isAdmin=true;
-setAdminUI();await loadEmployees();await renderWorkplan();renderShifts();
+setAdminUI();await loadEmployees();await renderWorkplan();renderShifts();applyLanguage();
 })();
 </script>
 </body>
