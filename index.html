@@ -130,7 +130,7 @@ $("send").onclick=async()=>{
   }
 
   // E-Mail über die Supabase Edge Function senden
-  const mail = await db.functions.invoke("image-to-pdf-processor", {
+  const mail = await db.functions.invoke("send-krankmeldung", {
     body: { employee, shift, date_from, date_to, days }
   });
 
