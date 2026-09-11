@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CARECON – Küche</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#20252b}
+header{background:#fff;border-bottom:1px solid #ddd;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+.logo{font-size:22px;font-weight:700}.chef{background:#20252b;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:700}
+.layout{display:flex;min-height:calc(100vh - 62px)}
+nav{width:225px;background:#132238;color:#fff;padding:14px 10px;flex-shrink:0}
+nav button{width:100%;text-align:left;background:transparent;color:#fff;border:0;border-radius:8px;padding:12px 13px;margin:2px 0;font-size:15px;cursor:pointer}
+nav button.active,nav button:hover{background:#1769e0}
+.content{max-width:1250px;width:100%;margin:0 auto;padding:26px 18px}
+.page{display:none}.page.active{display:block}
+.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 3px 14px #00000012;margin-bottom:18px}
+h1{margin-top:0;font-size:27px}h2{font-size:20px;margin-top:0}.muted{color:#667085}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tile{border:1px solid #e2e6eb;border-radius:12px;padding:18px;cursor:pointer;background:#fff}.tile:hover{border-color:#1769e0}
+.tile h3{margin:8px 0}.icon{font-size:28px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-weight:700;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccd2d8;border-radius:8px;font-size:16px;background:#fff}
+textarea{min-height:100px;resize:vertical}button{cursor:pointer}
+.primary{background:#1769e0;color:#fff;border:0;border-radius:8px;padding:11px 15px;font-weight:700}
+.secondary{background:#eef2f6;color:#20252b;border:0;border-radius:8px;padding:11px 15px;font-weight:700}
+.danger{background:#b42318;color:#fff;border:0;border-radius:7px;padding:8px 10px}
+.success{display:none;background:#eaf7ed;border:1px solid #b9dfc1;padding:14px;border-radius:8px;margin-top:15px}
+.error{display:none;color:#b00020;margin-top:10px}
+.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:950px}
+.table th,.table td{border:1px solid #e1e5ea;padding:8px;text-align:center}.table th{background:#f6f8fa}
+.table td:first-child,.table th:first-child{text-align:left;font-weight:700;position:sticky;left:0;background:#fff;z-index:1}
+.shiftcell{min-width:58px;font-weight:700}.shiftcell.editable{padding:0}.shiftcell select{border:0;border-radius:0;padding:10px 5px;text-align:center;background:transparent;font-weight:700}
+.count-row td{background:#eef2f6!important;font-weight:700}.item{border:1px solid #ddd;border-radius:9px;padding:13px;margin:10px 0;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.note{padding:12px;border-radius:9px;background:#f6f8fa;margin:10px 0}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modalbox{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:450px}.modalbuttons{display:flex;gap:10px;margin-top:18px}.modalbuttons button{flex:1}
+.admin-only{display:none}.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#eef2f6;margin:2px}
+.small{font-size:13px}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.month-title{font-size:20px;font-weight:700;min-width:180px;text-align:center}
+.savebar{position:sticky;bottom:10px;background:#fff;padding:12px;border-radius:12px;box-shadow:0 3px 15px #0003;display:none;z-index:10}
+.help{background:#eef6ff;border:1px solid #cfe2ff;padding:12px;border-radius:9px}
+.menu-img{width:150px;height:100px;object-fit:cover;border-radius:10px;border:1px solid #ddd}
+.menu-card{display:flex;gap:16px;align-items:flex-start;border:1px solid #ddd;border-radius:12px;padding:14px;margin:12px 0}
+.photo-preview{max-width:220px;max-height:150px;border-radius:10px;margin-top:8px}
+.vac-year{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:18px}.vac-year-title{font-size:22px;font-weight:700;min-width:90px;text-align:center}.year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.mini-month{border:1px solid #dfe4ea;border-radius:12px;overflow:hidden;background:#fff}.mini-head{padding:10px;text-align:center;font-weight:700;background:#f6f8fa}.mini-days{display:grid;grid-template-columns:repeat(7,1fr);font-size:12px}.mini-dow{padding:6px 2px;text-align:center;font-weight:700;color:#667085;background:#fafbfc}.mini-day{min-height:48px;border-top:1px solid #edf0f3;border-right:1px solid #edf0f3;padding:4px;position:relative}.mini-day:nth-child(7n){border-right:0}.mini-day.empty{background:#fafbfc}.mini-day .num{font-weight:700}.vac-name{display:block;font-size:10px;line-height:1.1;margin-top:3px;padding:2px 3px;border-radius:4px;background:#e7f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vac-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.vac-form{background:#f6f8fa;border-radius:10px;padding:14px;margin-bottom:16px}.print-hide{}
+@media(max-width:900px){.year-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.year-grid{grid-template-columns:1fr}.mini-day{min-height:44px}}
+ .shift-print{display:none}
+#printMonthTitle{display:none}
+.header-tools{display:flex;align-items:center;gap:8px}.lang-select{width:auto;min-width:150px;padding:9px 10px}.theme-btn{border:0;background:#eef2f6;border-radius:8px;padding:10px 12px;font-size:18px}.worker-stats{margin-top:14px}.worker-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.worker-stat{border:1px solid #e1e5ea;border-radius:10px;padding:12px}.worker-stat b{display:block;margin-bottom:7px}.holiday{background:#fff3cd!important}.holiday .num{color:#9a6700}.holiday-label{display:block;font-size:8px;line-height:1.1;margin-top:3px;color:#9a6700;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sick-mini{display:block;font-size:9px;line-height:1;margin-top:2px;color:#b42318;font-weight:700}
+body.dark{background:#111827;color:#e5e7eb}body.dark header,body.dark .card,body.dark .tile,body.dark .modalbox,body.dark .mini-month{background:#1f2937;color:#e5e7eb}body.dark .muted{color:#aeb8c6}body.dark input,body.dark select,body.dark textarea{background:#111827;color:#e5e7eb;border-color:#4b5563}body.dark .secondary,body.dark .theme-btn{background:#374151;color:#f3f4f6}body.dark .table th,body.dark .table td{border-color:#4b5563}body.dark .table th,body.dark .count-row td{background:#273244!important}body.dark .table td:first-child,body.dark .table th:first-child{background:#1f2937}body.dark .mini-head,body.dark .mini-dow{background:#273244}body.dark .mini-day{border-color:#374151}body.dark .mini-day.empty{background:#1b2431}body.dark .vac-form,body.dark .help,body.dark .note{background:#273244;border-color:#4b5563}body.dark .item{border-color:#4b5563}body.dark .worker-stat{border-color:#4b5563}
+@media(max-width:760px){.header-tools{gap:5px}.lang-select{min-width:0;width:44px;font-size:0}.lang-select option{font-size:16px}.theme-btn{padding:9px}.worker-stats{padding:14px}}
+@media print{
+@page{size:A4 landscape;margin:5mm}
+html,body{width:100%;background:#fff!important}
+header,nav,.print-hide,.admin-only,.toolbar,.savebar,#workerStats{display:none!important}
+.layout{display:block;min-height:0}.content{max-width:none;width:100%;padding:0;margin:0}
+.card{box-shadow:none!important;border:0!important;padding:0!important;margin:0!important}
+.page{display:none!important}.page.active{display:block!important}
+#arbeitsplan .card:first-child{display:block!important}
+#arbeitsplan h1{font-size:16px;margin:0 0 3px}
+#arbeitsplan .muted{font-size:8px;margin:0 0 4px}
+#arbeitsplan .help{font-size:7px;padding:3px;margin-bottom:4px}
+.tablewrap{overflow:visible!important;width:100%!important}
+#workTable{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:5.5px!important}
+#workTable th,#workTable td{padding:1.5px 1px!important;line-height:1.05!important;word-break:break-word!important}
+#workTable th:first-child,#workTable td:first-child{width:105px!important;text-align:left}
+#workTable th:not(:first-child),#workTable td:not(:first-child){width:auto!important;text-align:center}
+#workTable .small{font-size:5px!important}
+#workTable .count-row td{font-size:4.8px!important;line-height:1.05!important}
+.shiftcell select{display:none!important}
+.shift-print{display:inline!important;font-weight:700!important}
+#printMonthTitle{display:block!important;font-size:11px;font-weight:700;margin-bottom:3px}
+body{background:#fff!important}
+}
+@media(max-width:760px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;padding:7px;position:sticky;top:62px;z-index:19}nav button{min-width:max-content;text-align:center;padding:10px}.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.content{padding:18px 12px}.table{min-width:950px}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.card{padding:17px}.menu-card{display:block}}
+</style>
+</head>
+<body>
+<header><div class="logo">CARECON · Küche</div><div class="header-tools"><select id="languageSelect" class="lang-select" aria-label="Language"><option value="de">🇩🇪 Deutsch</option><option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="hr">🇭🇷 Hrvatski</option><option value="uk">🇺🇦 Українська</option></select><button class="theme-btn" id="themeBtn" title="Dark mode">🌙</button><button class="chef" id="adminBtn">Chef</button></div></header>
+
+<div class="layout">
+<nav>
+<button data-page="home" class="active">🏠 Startseite</button>
+<button data-page="krank">🤒 Krankmeldung</button>
+<button data-page="arbeitsplan">📅 Arbeitsplan</button>
+<button data-page="schichten">👨‍🍳 Schichtpläne</button>
+<button data-page="urlaub">🏖️ Urlaubsplan</button>
+<button data-page="menu">🍽️ Menüplan</button>
+<button data-page="mitteilungen">📢 Mitteilungen</button>
+<button data-page="admin" class="admin-only">⚙️ Admin</button>
+</nav>
+
+<main class="content">
+<section id="home" class="page active">
+<div class="card"><h1 id="welcomeTitle">Willkommen im Küchen-Portal</h1><p class="muted" id="welcomeText">Alle wichtigen Informationen für die Küche an einem Ort.</p>
+<div class="grid">
+<div class="tile" data-go="krank"><div class="icon">🤒</div><h3>Krankmeldung</h3><p class="muted">Krankmeldung schnell senden.</p></div>
+<div class="tile" data-go="arbeitsplan"><div class="icon">📅</div><h3>Arbeitsplan</h3><p class="muted">Monatsplan ansehen.</p></div>
+<div class="tile" data-go="schichten"><div class="icon">👨‍🍳</div><h3>Schichtpläne</h3><p class="muted">Abläufe der Schichten.</p></div>
+<div class="tile" data-go="urlaub"><div class="icon">🏖️</div><h3>Urlaubsplan</h3><p class="muted">Urlaube ansehen.</p></div>
+<div class="tile" data-go="menu"><div class="icon">🍽️</div><h3>Menüplan</h3><p class="muted">Menüs und Fotos ansehen.</p></div>
+<div class="tile" data-go="mitteilungen"><div class="icon">📢</div><h3>Mitteilungen</h3><p class="muted">Wichtige Informationen.</p></div>
+</div></div>
+</section>
+
+<section id="krank" class="page">
+<div class="card"><h1>🤒 Krankmeldung</h1><p class="muted">Bitte die Krankmeldung vollständig ausfüllen.</p>
+<div class="formgrid">
+<div><label>Mitarbeiter</label><input id="employee" list="employees" placeholder="Name eingeben"><datalist id="employees"></datalist></div>
+<div><label>Schicht</label><input id="shift" placeholder="z. B. 5"></div>
+<div><label>Von</label><input id="from" type="date"></div><div><label>Bis</label><input id="to" type="date"></div>
+</div>
+<button class="primary" id="send" style="width:100%;margin-top:18px">Krankmeldung senden</button>
+<div class="error" id="formError"></div><div class="success" id="success"></div>
+</div>
+<div class="card admin-only" id="adminPanel"><h2>Aktuelle Krankmeldungen</h2><p class="muted">Nur für den Chef sichtbar.</p><div id="list">Lade Daten…</div></div>
+</section>
+
+<section id="arbeitsplan" class="page">
+<div class="card">
+<div class="row"><div><h1 id="workplanHeading">📅 Arbeitsplan</h1><div id="printMonthTitle"></div><p class="muted">Monatsplan. Mitarbeiter können nur ansehen, Chef kann bearbeiten.</p></div>
+<div class="toolbar"><button class="secondary" id="prevMonth">←</button><div class="month-title" id="monthLabel"></div><button class="secondary" id="nextMonth">→</button><button class="secondary" id="todayMonth">Dieser Monat</button><button class="secondary admin-only print-hide" id="copyPrevMonth">🔄 Vormonat kopieren</button><button class="primary print-hide" id="printPlan">🖨️ Drucken / PDF</button></div></div>
+<div class="help"><span id="planHelpText"></span> <b>1, 3, 4, 5, 6 und 7</b>.</div>
+<div class="tablewrap" style="margin-top:14px"><table class="table" id="workTable"><thead></thead><tbody></tbody></table></div>
+<div class="card worker-stats" id="workerStats"><h2>👤 Mitarbeiter-Statistik</h2><div id="workerStatsList"></div></div>
+<div class="savebar" id="saveBar"><b>Es gibt ungespeicherte Änderungen.</b> <button class="primary" id="savePlan">💾 Arbeitsplan speichern</button></div>
+</div>
+<div class="card admin-only"><h2>👥 Mitarbeiter</h2><div class="formgrid"><div><label>Neuer Mitarbeiter</label><input id="newEmployee" placeholder="Vorname Nachname"></div><div style="display:flex;align-items:end"><button class="primary" id="addEmployee">+ Mitarbeiter hinzufügen</button></div></div><div id="employeeAdminList"></div></div>
+</section>
+
+<section id="schichten" class="page">
+<div class="card"><h1>👨‍🍳 Schichtpläne</h1><p class="muted">Abläufe der Küchenschichten.</p><div class="row" id="shiftButtons"></div></div>
+<div class="card"><div class="row"><h2 id="shiftTitle">Schicht 5</h2><button class="primary admin-only" id="editShiftPlan">Schichtplan bearbeiten</button></div><div id="shiftContent"></div><div id="shiftEditor" class="admin-only"></div></div>
+</section>
+
+<section id="urlaub" class="page">
+<div class="card">
+<div class="row"><div><h1>🏖️ Urlaubsplan</h1><p class="muted">Jahreskalender mit Urlaub nach einzelnen Tagen.</p></div><div class="vac-toolbar print-hide"><button class="secondary" id="prevVacYear">←</button><div class="vac-year-title" id="vacYearLabel"></div><button class="secondary" id="nextVacYear">→</button><button class="primary admin-only" id="addVacationBtn">+ Urlaub hinzufügen</button><button class="secondary" id="printVac">🖨️ Drucken / PDF</button></div></div>
+<div id="vacationForm" class="vac-form admin-only" style="display:none"><h3 style="margin-top:0">Urlaub eintragen</h3><div class="formgrid"><div><label>Mitarbeiter</label><select id="vacEmployee"></select></div><div><label>Von</label><input id="vacFrom" type="date"></div><div><label>Bis</label><input id="vacTo" type="date"></div><div style="display:flex;align-items:end;gap:8px"><button class="primary" id="saveVacation">💾 Speichern</button><button class="secondary" id="cancelVacation">Abbrechen</button></div></div><div class="error" id="vacError"></div></div>
+<div class="help">Jeder Urlaubstag wird im Kalender direkt beim jeweiligen Datum angezeigt. Der Kalender kann für jedes Jahr geöffnet und ausgedruckt werden.</div>
+<div id="vacationCalendar" class="year-grid" style="margin-top:14px"></div>
+</div>
+<div class="card admin-only print-hide"><h2>🏖️ Eingetragene Urlaube</h2><div id="vacationList"></div></div>
+</section>
+
+<section id="menu" class="page">
+<div class="card"><div class="row"><div><h1>🍽️ Menüplan</h1><p class="muted">Menüs ansehen. Chef kann Menüs, Beschreibungen und Fotos verwalten.</p></div><button class="primary admin-only" id="addMenuBtn">+ Menü hinzufügen</button></div><div id="menuList"></div></div>
+</section>
+
+<section id="mitteilungen" class="page">
+<div class="card"><div class="row"><div><h1>📢 Mitteilungen</h1><p class="muted">Wichtige Informationen für das Team.</p></div><button class="primary admin-only" id="addNoticeBtn">+ Mitteilung hinzufügen</button></div><div id="noticeList"></div></div>
+</section>
+
+<section id="admin" class="page">
+<div class="card"><h1>⚙️ Admin-Bereich</h1><p class="muted">Nur für Chef.</p>
+<div class="grid">
+<div class="tile" data-go="krank"><div class="icon">🤒</div><h3>Krankmeldungen</h3><p class="muted">Anzeigen und löschen.</p></div>
+<div class="tile" data-go="arbeitsplan"><div class="icon">📅</div><h3>Arbeitsplan</h3><p class="muted">Monate, Namen und Schichten bearbeiten.</p></div>
+<div class="tile" data-go="urlaub"><div class="icon">🏖️</div><h3>Urlaubsplan</h3><p class="muted">Urlaub eintragen und löschen.</p></div>
+<div class="tile" data-go="menu"><div class="icon">🍽️</div><h3>Menüplan</h3><p class="muted">Menüs und Fotos verwalten.</p></div>
+<div class="tile" data-go="mitteilungen"><div class="icon">📢</div><h3>Mitteilungen</h3><p class="muted">Team informieren.</p></div>
+<div class="tile" id="emailTile"><div class="icon">✉️</div><h3>E-Mail-Empfänger</h3><p class="muted">Adressen für Krankmeldungen.</p></div>
+</div></div>
+<div class="card" id="emailCard"><h2>✉️ E-Mail-Empfänger</h2><p class="muted">Diese Adressen sollen Krankmeldungen erhalten.</p>
+<div class="formgrid"><div><label>E-Mail-Adresse</label><input id="newEmail" type="email" placeholder="name@firma.de"></div><div style="display:flex;align-items:end"><button class="primary" id="addEmail">E-Mail hinzufügen</button></div></div>
+<div class="error" id="emailError"></div><div id="emailList"></div></div>
+</section>
+</main></div>
+
+<div class="modal" id="modal"><div class="modalbox"><h2>Chef Login</h2><label>Benutzername</label><input id="username" autocomplete="username" placeholder="chef"><label>Passwort</label><input id="password" type="password" autocomplete="current-password" placeholder="Passwort"><div class="error" id="loginError"></div><div class="modalbuttons"><button class="secondary" id="cancel">Abbrechen</button><button class="primary" id="login">Einloggen</button></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://nuicmxcgkqeflmeqjpve.supabase.co";
+const SUPABASE_KEY="sb_publishable_QSNawLIsldcQxAqIWvMHVg_V7hH7tfU";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const ADMIN_EMAIL="chef@carecon.com";
+const $=id=>document.getElementById(id);
+let isAdmin=false, planMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+let names=[], pendingPlan={};
+const defaultNames=["Tymechko Nazar","Fisunov Ostap","Yaroslav Marinovskiy","Eike Birkhofen"];
+const workShiftOptions=["1","3","4","5","6","7","Frei","Urlaub","Krank"];
+const shiftPlanOptions=["1","3","4","5","6","7"];
+const shiftOptions=workShiftOptions;
+
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+const LOCALES={de:"de-DE",en:"en-GB",fr:"fr-FR",hr:"hr-HR",uk:"uk-UA"};
+function locale(){return LOCALES[currentLang]||"de-DE"}
+function formatDate(s){return s?new Date(s+"T00:00:00").toLocaleDateString(locale()):""}
+function monthStart(){return new Date(planMonth.getFullYear(),planMonth.getMonth(),1)}
+function monthEnd(){return new Date(planMonth.getFullYear(),planMonth.getMonth()+1,0)}
+function monthLabel(){return planMonth.toLocaleDateString(locale(),{month:"long",year:"numeric"})}
+
+const I18N={};
+
+const UI={
+ de:{logo:"CARECON · Küche",homeTitle:"Willkommen im Küchen-Portal",homeText:"Alle wichtigen Informationen für die Küche an einem Ort.",sick:"Krankmeldung",sickQuick:"Krankmeldung schnell senden.",plan:"Arbeitsplan",planView:"Monatsplan ansehen.",shifts:"Schichtpläne",shiftDesc:"Abläufe der Schichten.",vac:"Urlaubsplan",vacView:"Urlaube ansehen.",menu:"Menüplan",menuView:"Menüs und Fotos ansehen.",notice:"Mitteilungen",noticeView:"Wichtige Informationen.",sickFill:"Bitte die Krankmeldung vollständig ausfüllen.",employee:"Mitarbeiter",shift:"Schicht",from:"Von",to:"Bis",sendSick:"Krankmeldung senden",currentSick:"Aktuelle Krankmeldungen",chefOnly:"Nur für den Chef sichtbar.",loading:"Lade Daten…",monthPlan:"Monatsplan. Mitarbeiter können nur ansehen, Chef kann bearbeiten.",helpPlan:"Unter jedem Tag steht die Anzahl der Mitarbeiter in den Schichten",stats:"👤 Mitarbeiter-Statistik",vacLeft:"Urlaub übrig",extraHours:"Extra-Stunden",vacTotal:"Urlaubsanspruch",unsaved:"Es gibt ungespeicherte Änderungen.",employees:"👥 Mitarbeiter",newEmployee:"Neuer Mitarbeiter",addEmployee:"+ Mitarbeiter hinzufügen",shiftProcess:"Abläufe der Küchenschichten.",editShift:"Schichtplan bearbeiten",vacYear:"Jahreskalender mit Urlaub nach einzelnen Tagen.",addVac:"+ Urlaub hinzufügen",vacEntry:"Urlaub eintragen",save:"💾 Speichern",cancel:"Abbrechen",vacHelp:"Jeder Urlaubstag wird im Kalender direkt beim jeweiligen Datum angezeigt. Der Kalender kann für jedes Jahr geöffnet und ausgedruckt werden.",enteredVac:"🏖️ Eingetragene Urlaube",menuText:"Menüs ansehen. Chef kann Menüs, Beschreibungen und Fotos verwalten.",addMenu:"+ Menü hinzufügen",noticeText:"Wichtige Informationen für das Team.",addNotice:"+ Mitteilung hinzufügen",adminArea:"⚙️ Admin-Bereich",onlyChef:"Nur für Chef.",showDelete:"Anzeigen und löschen.",editPlanText:"Monate, Namen und Schichten bearbeiten.",vacEditText:"Urlaub eintragen und löschen.",menuEditText:"Menüs und Fotos verwalten.",teamInform:"Team informieren.",emailRecipients:"✉️ E-Mail-Empfänger",emailReceive:"Diese Adressen sollen Krankmeldungen erhalten.",emailAddress:"E-Mail-Adresse",addEmail:"E-Mail hinzufügen",login:"Chef Login",username:"Benutzername",password:"Passwort",loginBtn:"Einloggen",delete:"Löschen",noSick:"Keine Krankmeldungen vorhanden.",noVac:"Keine Urlaube eingetragen.",noMenu:"Noch kein Menü eingetragen.",noNotice:"Keine Mitteilungen vorhanden.",noEmails:"Noch keine E-Mail-Adressen.",wrongLogin:"Falscher Benutzername oder Passwort.",missingFields:"Bitte alle Felder ausfüllen.",invalidRange:"Bis darf nicht vor Von liegen.",sickSaved:"Krankmeldung gespeichert.",emailFailed:"E-Mail konnte nicht gesendet werden.",sickSent:"Krankmeldung erfolgreich gesendet.",deleteSickQ:"Krankmeldung wirklich löschen?",deleteVacQ:"Urlaub löschen?",deleteMenuQ:"Menü löschen?",deleteNoticeQ:"Mitteilung löschen?",deleteEmailQ:"E-Mail-Adresse löschen?",copyQ:"Arbeitsplan vom Vormonat in diesen Monat kopieren? Urlaub und Krank werden nicht übernommen.",noPrev:"Im Vormonat gibt es keinen Arbeitsplan zum Kopieren.",copied:"Einträge kopiert.",saved:"Arbeitsplan gespeichert.",shiftSaved:"Schichtplan gespeichert.",photoQ:"Möchtest du ein Foto hinzufügen? OK = Foto auswählen, Abbrechen = ohne Foto.",datePrompt:"Datum (YYYY-MM-DD):",menuPrompt:"Menü:",descPrompt:"Beschreibung (optional):",descEdit:"Beschreibung:",titlePrompt:"Titel:",noticePrompt:"Mitteilung:",deviceSaved:"Dieser Schicht-Ablauf wird auf diesem Gerät gespeichert.",noPlan:"Noch kein Plan.",active:"Aktiv",inactive:"Deaktiviert",activate:"Aktivieren",deactivate:"Deaktivieren",noEmployees:"Noch keine Mitarbeiter.",shiftWord:"Schicht",monthWord:"Monat",yearWord:"Jahr",holiday:"Feiertag",work:"Arbeit",free:"Frei",vacation:"Urlaub",sick:"Krank",error:"Fehler",edit:"Bearbeiten",day:"Tag",dayPlural:"Tage",noData:"Keine Daten."},
+ en:{logo:"CARECON · Kitchen",homeTitle:"Welcome to the kitchen portal",homeText:"All important kitchen information in one place.",sick:"Sick leave",sickQuick:"Send sick leave quickly.",plan:"Work plan",planView:"View monthly plan.",shifts:"Shift plans",shiftDesc:"Kitchen shift procedures.",vac:"Vacation plan",vacView:"View vacations.",menu:"Menu plan",menuView:"View menus and photos.",notice:"Announcements",noticeView:"Important information.",sickFill:"Please complete the sick leave form.",employee:"Employee",shift:"Shift",from:"From",to:"To",sendSick:"Send sick leave",currentSick:"Current sick leave",chefOnly:"Visible to Chef only.",loading:"Loading…",monthPlan:"Monthly plan. Employees can view only; Chef can edit.",helpPlan:"The number of employees in shifts",stats:"👤 Employee statistics",vacLeft:"Vacation remaining",extraHours:"Extra hours",vacTotal:"Vacation entitlement",unsaved:"There are unsaved changes.",employees:"👥 Employees",newEmployee:"New employee",addEmployee:"+ Add employee",shiftProcess:"Kitchen shift procedures.",editShift:"Edit shift plan",vacYear:"Annual calendar with vacation shown day by day.",addVac:"+ Add vacation",vacEntry:"Enter vacation",save:"💾 Save",cancel:"Cancel",vacHelp:"Each vacation day is shown directly on its date. The calendar can be opened and printed for any year.",enteredVac:"🏖️ Recorded vacations",menuText:"View menus. Chef can manage menus, descriptions and photos.",addMenu:"+ Add menu",noticeText:"Important information for the team.",addNotice:"+ Add announcement",adminArea:"⚙️ Admin area",onlyChef:"Chef only.",showDelete:"View and delete.",editPlanText:"Edit months, names and shifts.",vacEditText:"Add and delete vacations.",menuEditText:"Manage menus and photos.",teamInform:"Inform the team.",emailRecipients:"✉️ Email recipients",emailReceive:"These addresses should receive sick leave notifications.",emailAddress:"Email address",addEmail:"Add email",login:"Chef login",username:"Username",password:"Password",loginBtn:"Log in",delete:"Delete",noSick:"No sick leave records.",noVac:"No vacations recorded.",noMenu:"No menu entries yet.",noNotice:"No announcements.",noEmails:"No email addresses yet.",wrongLogin:"Incorrect username or password.",missingFields:"Please fill in all fields.",invalidRange:"The end date cannot be before the start date.",sickSaved:"Sick leave saved.",emailFailed:"Email could not be sent.",sickSent:"Sick leave sent successfully.",deleteSickQ:"Delete this sick leave record?",deleteVacQ:"Delete vacation?",deleteMenuQ:"Delete menu?",deleteNoticeQ:"Delete announcement?",deleteEmailQ:"Delete email address?",copyQ:"Copy the previous month's work plan into this month? Vacation and sick entries will not be copied.",noPrev:"There is no work plan to copy from the previous month.",copied:"entries copied.",saved:"Work plan saved.",shiftSaved:"Shift plan saved.",photoQ:"Would you like to add a photo? OK = choose photo, Cancel = without photo.",datePrompt:"Date (YYYY-MM-DD):",menuPrompt:"Menu:",descPrompt:"Description (optional):",descEdit:"Description:",titlePrompt:"Title:",noticePrompt:"Announcement:",deviceSaved:"This shift procedure is saved on this device.",noPlan:"No plan yet.",active:"Active",inactive:"Inactive",activate:"Activate",deactivate:"Deactivate",noEmployees:"No employees yet.",shiftWord:"Shift",monthWord:"Month",yearWord:"Year",holiday:"Public holiday",work:"Work",free:"Off",vacation:"Vacation",sick:"Sick",error:"Error",edit:"Edit",day:"day",dayPlural:"days",noData:"No data."},
+ fr:{logo:"CARECON · Cuisine",homeTitle:"Bienvenue sur le portail cuisine",homeText:"Toutes les informations importantes de la cuisine au même endroit.",sick:"Arrêt maladie",sickQuick:"Envoyer rapidement un arrêt maladie.",plan:"Planning de travail",planView:"Voir le planning mensuel.",shifts:"Plannings des équipes",shiftDesc:"Déroulement des équipes de cuisine.",vac:"Planning des congés",vacView:"Voir les congés.",menu:"Menu",menuView:"Voir les menus et les photos.",notice:"Annonces",noticeView:"Informations importantes.",sickFill:"Veuillez remplir entièrement le formulaire d'arrêt maladie.",employee:"Employé",shift:"Équipe",from:"Du",to:"Au",sendSick:"Envoyer l'arrêt maladie",currentSick:"Arrêts maladie actuels",chefOnly:"Visible uniquement par le Chef.",loading:"Chargement…",monthPlan:"Planning mensuel. Les employés peuvent seulement consulter, le Chef peut modifier.",helpPlan:"Sous chaque jour est indiqué le nombre d'employés dans les équipes",stats:"👤 Statistiques de l’employé",vacLeft:"Congés restants",extraHours:"Heures supplémentaires",vacTotal:"Droit aux congés",unsaved:"Des modifications ne sont pas enregistrées.",employees:"👥 Employés",newEmployee:"Nouvel employé",addEmployee:"+ Ajouter un employé",shiftProcess:"Déroulement des équipes de cuisine.",editShift:"Modifier le planning d'équipe",vacYear:"Calendrier annuel avec les congés affichés jour par jour.",addVac:"+ Ajouter un congé",vacEntry:"Enregistrer un congé",save:"💾 Enregistrer",cancel:"Annuler",vacHelp:"Chaque jour de congé est affiché directement à sa date. Le calendrier peut être consulté et imprimé pour chaque année.",enteredVac:"🏖️ Congés enregistrés",menuText:"Voir les menus. Le Chef peut gérer les menus, descriptions et photos.",addMenu:"+ Ajouter un menu",noticeText:"Informations importantes pour l'équipe.",addNotice:"+ Ajouter une annonce",adminArea:"⚙️ Espace Admin",onlyChef:"Réservé au Chef.",showDelete:"Afficher et supprimer.",editPlanText:"Modifier les mois, les noms et les équipes.",vacEditText:"Ajouter et supprimer des congés.",menuEditText:"Gérer les menus et les photos.",teamInform:"Informer l'équipe.",emailRecipients:"✉️ Destinataires e-mail",emailReceive:"Ces adresses doivent recevoir les notifications d'arrêt maladie.",emailAddress:"Adresse e-mail",addEmail:"Ajouter l'adresse",login:"Connexion Chef",username:"Nom d'utilisateur",password:"Mot de passe",loginBtn:"Se connecter",delete:"Supprimer",noSick:"Aucun arrêt maladie.",noVac:"Aucun congé enregistré.",noMenu:"Aucun menu enregistré.",noNotice:"Aucune annonce.",noEmails:"Aucune adresse e-mail.",wrongLogin:"Nom d'utilisateur ou mot de passe incorrect.",missingFields:"Veuillez remplir tous les champs.",invalidRange:"La date de fin ne peut pas être avant la date de début.",sickSaved:"Arrêt maladie enregistré.",emailFailed:"L'e-mail n'a pas pu être envoyé.",sickSent:"Arrêt maladie envoyé avec succès.",deleteSickQ:"Supprimer cet arrêt maladie ?",deleteVacQ:"Supprimer le congé ?",deleteMenuQ:"Supprimer le menu ?",deleteNoticeQ:"Supprimer l'annonce ?",deleteEmailQ:"Supprimer l'adresse e-mail ?",copyQ:"Copier le planning du mois précédent dans ce mois ? Les congés et arrêts maladie ne seront pas copiés.",noPrev:"Aucun planning à copier depuis le mois précédent.",copied:"entrées copiées.",saved:"Planning enregistré.",shiftSaved:"Planning d'équipe enregistré.",photoQ:"Ajouter une photo ? OK = choisir une photo, Annuler = sans photo.",datePrompt:"Date (AAAA-MM-JJ) :",menuPrompt:"Menu :",descPrompt:"Description (facultatif) :",descEdit:"Description :",titlePrompt:"Titre :",noticePrompt:"Annonce :",deviceSaved:"Ce planning d'équipe est enregistré sur cet appareil.",noPlan:"Aucun planning pour le moment.",active:"Actif",inactive:"Désactivé",activate:"Activer",deactivate:"Désactiver",noEmployees:"Aucun employé pour le moment.",shiftWord:"Équipe",monthWord:"Mois",yearWord:"Année",holiday:"Jour férié",work:"Travail",free:"Repos",vacation:"Congé",sick:"Malade",error:"Erreur",edit:"Modifier",day:"jour",dayPlural:"jours",noData:"Aucune donnée."},
+ hr:{logo:"CARECON · Kuhinja",homeTitle:"Dobrodošli na kuhinjski portal",homeText:"Sve važne informacije za kuhinju na jednom mjestu.",sick:"Bolovanje",sickQuick:"Brzo pošaljite bolovanje.",plan:"Raspored rada",planView:"Pregled mjesečnog rasporeda.",shifts:"Smjene",shiftDesc:"Tijek kuhinjskih smjena.",vac:"Godišnji odmor",vacView:"Pregled godišnjih odmora.",menu:"Jelovnik",menuView:"Pregled jelovnika i fotografija.",notice:"Obavijesti",noticeView:"Važne informacije.",sickFill:"Molimo potpuno ispunite obrazac za bolovanje.",employee:"Zaposlenik",shift:"Smjena",from:"Od",to:"Do",sendSick:"Pošalji bolovanje",currentSick:"Trenutna bolovanja",chefOnly:"Vidljivo samo Chefu.",loading:"Učitavanje…",monthPlan:"Mjesečni raspored. Zaposlenici mogu samo pregledavati, Chef može uređivati.",helpPlan:"Ispod svakog dana prikazan je broj zaposlenika u smjenama",stats:"👤 Statistika zaposlenika",vacLeft:"Preostali godišnji odmor",extraHours:"Prekovremeni sati",vacTotal:"Godišnji odmor",unsaved:"Postoje nespremljene promjene.",employees:"👥 Zaposlenici",newEmployee:"Novi zaposlenik",addEmployee:"+ Dodaj zaposlenika",shiftProcess:"Tijek kuhinjskih smjena.",editShift:"Uredi raspored smjene",vacYear:"Godišnji kalendar s godišnjim odmorom po danima.",addVac:"+ Dodaj godišnji odmor",vacEntry:"Unos godišnjeg odmora",save:"💾 Spremi",cancel:"Odustani",vacHelp:"Svaki dan godišnjeg odmora prikazan je izravno na svom datumu. Kalendar se može otvoriti i ispisati za svaku godinu.",enteredVac:"🏖️ Uneseni godišnji odmori",menuText:"Pregled jelovnika. Chef može uređivati jelovnike, opise i fotografije.",addMenu:"+ Dodaj jelovnik",noticeText:"Važne informacije za tim.",addNotice:"+ Dodaj obavijest",adminArea:"⚙️ Admin područje",onlyChef:"Samo za Chefa.",showDelete:"Pregled i brisanje.",editPlanText:"Uređivanje mjeseci, imena i smjena.",vacEditText:"Dodavanje i brisanje godišnjih odmora.",menuEditText:"Upravljanje jelovnicima i fotografijama.",teamInform:"Obavijesti tim.",emailRecipients:"✉️ Primatelji e-pošte",emailReceive:"Ove adrese trebaju primati obavijesti o bolovanju.",emailAddress:"E-mail adresa",addEmail:"Dodaj e-mail",login:"Chef prijava",username:"Korisničko ime",password:"Lozinka",loginBtn:"Prijava",delete:"Obriši",noSick:"Nema bolovanja.",noVac:"Nema unesenih godišnjih odmora.",noMenu:"Još nema jelovnika.",noNotice:"Nema obavijesti.",noEmails:"Još nema e-mail adresa.",wrongLogin:"Pogrešno korisničko ime ili lozinka.",missingFields:"Ispunite sva polja.",invalidRange:"Datum završetka ne može biti prije početnog datuma.",sickSaved:"Bolovanje je spremljeno.",emailFailed:"E-mail nije moguće poslati.",sickSent:"Bolovanje je uspješno poslano.",deleteSickQ:"Obrisati ovo bolovanje?",deleteVacQ:"Obrisati godišnji odmor?",deleteMenuQ:"Obrisati jelovnik?",deleteNoticeQ:"Obrisati obavijest?",deleteEmailQ:"Obrisati e-mail adresu?",copyQ:"Kopirati raspored iz prethodnog mjeseca u ovaj mjesec? Godišnji odmor i bolovanje neće se kopirati.",noPrev:"U prethodnom mjesecu nema rasporeda za kopiranje.",copied:"zapisa kopirano.",saved:"Raspored je spremljen.",shiftSaved:"Raspored smjene je spremljen.",photoQ:"Želite li dodati fotografiju? U redu = odaberite fotografiju, Odustani = bez fotografije.",datePrompt:"Datum (GGGG-MM-DD):",menuPrompt:"Jelovnik:",descPrompt:"Opis (neobavezno):",descEdit:"Opis:",titlePrompt:"Naslov:",noticePrompt:"Obavijest:",deviceSaved:"Raspored smjene sprema se na ovom uređaju.",noPlan:"Još nema rasporeda.",active:"Aktivan",inactive:"Deaktiviran",activate:"Aktiviraj",deactivate:"Deaktiviraj",noEmployees:"Još nema zaposlenika.",shiftWord:"Smjena",monthWord:"Mjesec",yearWord:"Godina",holiday:"Blagdan",work:"Rad",free:"Slobodno",vacation:"Godišnji",sick:"Bolovanje",error:"Greška",edit:"Uredi",day:"dan",dayPlural:"dana",noData:"Nema podataka."},
+ uk:{logo:"CARECON · Кухня",homeTitle:"Ласкаво просимо до кухонного порталу",homeText:"Уся важлива інформація для кухні в одному місці.",sick:"Лікарняний",sickQuick:"Швидко надіслати лікарняний.",plan:"Робочий план",planView:"Переглянути місячний план.",shifts:"Плани змін",shiftDesc:"Порядок роботи кухонних змін.",vac:"Відпустка",vacView:"Переглянути відпустки.",menu:"Меню",menuView:"Переглянути меню та фото.",notice:"Повідомлення",noticeView:"Важлива інформація.",sickFill:"Будь ласка, повністю заповніть форму лікарняного.",employee:"Працівник",shift:"Зміна",from:"Від",to:"До",sendSick:"Надіслати лікарняний",currentSick:"Поточні лікарняні",chefOnly:"Видно лише Chef.",loading:"Завантаження…",monthPlan:"Місячний план. Працівники можуть лише переглядати, Chef може редагувати.",helpPlan:"Під кожним днем показано кількість працівників у змінах",stats:"🏆 Статистика за місяць",unsaved:"Є незбережені зміни.",employees:"👥 Працівники",newEmployee:"Новий працівник",addEmployee:"+ Додати працівника",shiftProcess:"Порядок роботи кухонних змін.",editShift:"Редагувати план зміни",vacYear:"Річний календар із відпустками по днях.",addVac:"+ Додати відпустку",vacEntry:"Додати відпустку",save:"💾 Зберегти",cancel:"Скасувати",vacHelp:"Кожен день відпустки показано безпосередньо на його даті. Календар можна відкрити та роздрукувати для будь-якого року.",enteredVac:"🏖️ Внесені відпустки",menuText:"Перегляд меню. Chef може керувати меню, описами та фотографіями.",addMenu:"+ Додати меню",noticeText:"Важлива інформація для команди.",addNotice:"+ Додати повідомлення",adminArea:"⚙️ Розділ адміна",onlyChef:"Тільки для Chef.",showDelete:"Перегляд і видалення.",editPlanText:"Редагування місяців, імен і змін.",vacEditText:"Додавання та видалення відпусток.",menuEditText:"Керування меню та фотографіями.",teamInform:"Інформувати команду.",emailRecipients:"✉️ Отримувачі e-mail",emailReceive:"Ці адреси мають отримувати повідомлення про лікарняні.",emailAddress:"E-mail адреса",addEmail:"Додати e-mail",login:"Вхід Chef",username:"Ім'я користувача",password:"Пароль",loginBtn:"Увійти",delete:"Видалити",noSick:"Лікарняних немає.",noVac:"Відпусток не внесено.",noMenu:"Меню ще не внесено.",noNotice:"Повідомлень немає.",noEmails:"E-mail адрес ще немає.",wrongLogin:"Неправильне ім'я користувача або пароль.",missingFields:"Будь ласка, заповніть усі поля.",invalidRange:"Дата закінчення не може бути раніше дати початку.",sickSaved:"Лікарняний збережено.",emailFailed:"Не вдалося надіслати e-mail.",sickSent:"Лікарняний успішно надіслано.",deleteSickQ:"Видалити цей лікарняний?",deleteVacQ:"Видалити відпустку?",deleteMenuQ:"Видалити меню?",deleteNoticeQ:"Видалити повідомлення?",deleteEmailQ:"Видалити e-mail адресу?",copyQ:"Копіювати робочий план попереднього місяця в цей місяць? Відпустка та лікарняний не копіюються.",noPrev:"У попередньому місяці немає плану для копіювання.",copied:"записів скопійовано.",saved:"Робочий план збережено.",shiftSaved:"План зміни збережено.",photoQ:"Додати фото? OK = вибрати фото, Скасувати = без фото.",datePrompt:"Дата (РРРР-ММ-ДД):",menuPrompt:"Меню:",descPrompt:"Опис (необов'язково):",descEdit:"Опис:",titlePrompt:"Заголовок:",noticePrompt:"Повідомлення:",deviceSaved:"План зміни зберігається на цьому пристрої.",noPlan:"Плану ще немає.",active:"Активний",inactive:"Деактивований",activate:"Активувати",deactivate:"Деактивувати",noEmployees:"Працівників ще немає.",shiftWord:"Зміна",monthWord:"Місяць",yearWord:"Рік",holiday:"Свято",work:"Робота",free:"Вільно",vacation:"Відпустка",sick:"Лікарняний",error:"Помилка",edit:"Редагувати",day:"день",dayPlural:"днів",noData:"Немає даних."}
+};
+let currentLang=localStorage.getItem("carecon_lang")||"de";
+function tr(k){const extra={navHome:{de:"Startseite",en:"Home",fr:"Accueil",hr:"Početna",uk:"Головна"},navSick:{de:"Krankmeldung",en:"Sick leave",fr:"Arrêt maladie",hr:"Bolovanje",uk:"Лікарняний"},navPlan:{de:"Arbeitsplan",en:"Work plan",fr:"Planning de travail",hr:"Raspored rada",uk:"Робочий план"},navShifts:{de:"Schichtpläne",en:"Shift plans",fr:"Plannings des équipes",hr:"Smjene",uk:"Плани змін"},navVac:{de:"Urlaubsplan",en:"Vacation plan",fr:"Planning des congés",hr:"Godišnji odmor",uk:"Відпустка"},navMenu:{de:"Menüplan",en:"Menu plan",fr:"Menu",hr:"Jelovnik",uk:"Меню"},navNotice:{de:"Mitteilungen",en:"Announcements",fr:"Annonces",hr:"Obavijesti",uk:"Повідомлення"},navAdmin:{de:"Admin",en:"Admin",fr:"Admin",hr:"Admin",uk:"Адмін"},monthStats:{de:"Monatsstatistik",en:"Monthly statistics",fr:"Statistiques du mois",hr:"Mjesečna statistika",uk:"Статистика за місяць"},copyPrev:{de:"🔄 Vormonat kopieren",en:"🔄 Copy previous month",fr:"🔄 Copier le mois précédent",hr:"🔄 Kopiraj prethodni mjesec",uk:"🔄 Копіювати попередній місяць"},today:{de:"Dieser Monat",en:"This month",fr:"Ce mois",hr:"Ovaj mjesec",uk:"Цей місяць"},print:{de:"🖨️ Drucken / PDF",en:"🖨️ Print / PDF",fr:"🖨️ Imprimer / PDF",hr:"🖨️ Ispis / PDF",uk:"🖨️ Друк / PDF"},work:{de:"Arbeit",en:"Work",fr:"Travail",hr:"Rad",uk:"Робота"},free:{de:"Frei",en:"Off",fr:"Repos",hr:"Slobodno",uk:"Вільно"},vac:{de:"Urlaub",en:"Vacation",fr:"Congé",hr:"Godišnji",uk:"Відпустка"},sick:{de:"Krank",en:"Sick",fr:"Malade",hr:"Bolovanje",uk:"Лікарняний"},shiftCount:{de:"Anzahl pro Schicht",en:"Staff per shift",fr:"Effectif par équipe",hr:"Broj zaposlenih po smjeni",uk:"Кількість працівників по зміні"},vacLeft:{de:"Urlaub übrig",en:"Vacation remaining",fr:"Congés restants",hr:"Preostali godišnji odmor",uk:"Залишилось відпустки"},extraHours:{de:"Extra-Stunden",en:"Extra hours",fr:"Heures supplémentaires",hr:"Prekovremeni sati",uk:"Екстра-години"},vacTotal:{de:"Urlaubsanspruch",en:"Vacation entitlement",fr:"Droit aux congés",hr:"Godišnji odmor",uk:"Всього днів відпустки"}};return UI[currentLang]?.[k]??extra[k]?.[currentLang]??k}
+const SHIFT_LABELS={de:{Frei:"Frei",Urlaub:"Urlaub",Krank:"Krank"},en:{Frei:"Off",Urlaub:"Vacation",Krank:"Sick"},fr:{Frei:"Repos",Urlaub:"Congé",Krank:"Malade"},hr:{Frei:"Slobodno",Urlaub:"Godišnji",Krank:"Bolovanje"},uk:{Frei:"Вільно",Urlaub:"Відпустка",Krank:"Лікарняний"}};
+function shiftLabel(v){return SHIFT_LABELS[currentLang]?.[v]||v}
+const HOLIDAY_NAMES={de:{Neujahr:"Neujahr","Tag der Arbeit":"Tag der Arbeit","Tag der Deutschen Einheit":"Tag der Deutschen Einheit",Reformationstag:"Reformationstag","1. Weihnachtstag":"1. Weihnachtstag","2. Weihnachtstag":"2. Weihnachtstag","Heilige Drei Könige":"Heilige Drei Könige",Allerheiligen:"Allerheiligen",Karfreitag:"Karfreitag",Ostermontag:"Ostermontag","Christi Himmelfahrt":"Christi Himmelfahrt",Pfingstmontag:"Pfingstmontag",Fronleichnam:"Fronleichnam"},en:{Neujahr:"New Year's Day","Tag der Arbeit":"Labour Day","Tag der Deutschen Einheit":"German Unity Day",Reformationstag:"Reformation Day","1. Weihnachtstag":"Christmas Day","2. Weihnachtstag":"Boxing Day","Heilige Drei Könige":"Epiphany",Allerheiligen:"All Saints' Day",Karfreitag:"Good Friday",Ostermontag:"Easter Monday","Christi Himmelfahrt":"Ascension Day",Pfingstmontag:"Whit Monday",Fronleichnam:"Corpus Christi"},fr:{Neujahr:"Jour de l'An","Tag der Arbeit":"Fête du Travail","Tag der Deutschen Einheit":"Unité allemande",Reformationstag:"Jour de la Réformation","1. Weihnachtstag":"Noël","2. Weihnachtstag":"Lendemain de Noël","Heilige Drei Könige":"Épiphanie",Allerheiligen:"Toussaint",Karfreitag:"Vendredi saint",Ostermontag:"Lundi de Pâques","Christi Himmelfahrt":"Ascension",Pfingstmontag:"Lundi de Pentecôte",Fronleichnam:"Fête-Dieu"},hr:{Neujahr:"Nova godina","Tag der Arbeit":"Praznik rada","Tag der Deutschen Einheit":"Dan njemačkog jedinstva",Reformationstag:"Dan reformacije","1. Weihnachtstag":"Božić","2. Weihnachtstag":"Drugi dan Božića","Heilige Drei Könige":"Sveta tri kralja",Allerheiligen:"Svi sveti",Karfreitag:"Veliki petak",Ostermontag:"Uskrsni ponedjeljak","Christi Himmelfahrt":"Uzašašće",Pfingstmontag:"Duhovski ponedjeljak",Fronleichnam:"Tijelovo"},uk:{Neujahr:"Новий рік","Tag der Arbeit":"День праці","Tag der Deutschen Einheit":"День німецької єдності",Reformationstag:"День Реформації","1. Weihnachtstag":"Різдво","2. Weihnachtstag":"Другий день Різдва","Heilige Drei Könige":"Богоявлення",Allerheiligen:"День усіх святих",Karfreitag:"Страсна п'ятниця",Ostermontag:"Великодній понеділок","Christi Himmelfahrt":"Вознесіння Христове",Pfingstmontag:"Духів понеділок",Fronleichnam:"Свято Тіла Христового"}};
+function holidayName(n){return HOLIDAY_NAMES[currentLang]?.[n]||n}
+const STATIC_MAP={
+ "CARECON · Küche":"logo","Willkommen im Küchen-Portal":"homeTitle","Alle wichtigen Informationen für die Küche an einem Ort.":"homeText","Krankmeldung":"sick","Krankmeldung schnell senden.":"sickQuick","Arbeitsplan":"plan","Monatsplan ansehen.":"planView","Schichtpläne":"shifts","Abläufe der Schichten.":"shiftDesc","Urlaubsplan":"vac","Urlaube ansehen.":"vacView","Menüplan":"menu","Menüs und Fotos ansehen.":"menuView","Mitteilungen":"notice","Wichtige Informationen.":"noticeView","Bitte die Krankmeldung vollständig ausfüllen.":"sickFill","Mitarbeiter":"employee","Schicht":"shift","Von":"from","Bis":"to","Krankmeldung senden":"sendSick","Aktuelle Krankmeldungen":"currentSick","Nur für den Chef sichtbar.":"chefOnly","Lade Daten…":"loading","Monatsplan. Mitarbeiter können nur ansehen, Chef kann bearbeiten.":"monthPlan","Dieser Monat":"today","🔄 Vormonat kopieren":"copyPrev","🖨️ Drucken / PDF":"print","🏆 Monatsstatistik":"stats","Es gibt ungespeicherte Änderungen.":"unsaved","👥 Mitarbeiter":"employees","Neuer Mitarbeiter":"newEmployee","+ Mitarbeiter hinzufügen":"addEmployee","Schichtplan bearbeiten":"editShift","Jahreskalender mit Urlaub nach einzelnen Tagen.":"vacYear","+ Urlaub hinzufügen":"addVac","Urlaub eintragen":"vacEntry","💾 Speichern":"save","Abbrechen":"cancel","Jeder Urlaubstag wird im Kalender direkt beim jeweiligen Datum angezeigt. Der Kalender kann für jedes Jahr geöffnet und ausgedruckt werden.":"vacHelp","🏖️ Eingetragene Urlaube":"enteredVac","Menüs ansehen. Chef kann Menüs, Beschreibungen und Fotos verwalten.":"menuText","+ Menü hinzufügen":"addMenu","Wichtige Informationen für das Team.":"noticeText","+ Mitteilung hinzufügen":"addNotice","⚙️ Admin-Bereich":"adminArea","Nur für Chef.":"onlyChef","Anzeigen und löschen.":"showDelete","Monate, Namen und Schichten bearbeiten.":"editPlanText","Urlaub eintragen und löschen.":"vacEditText","Menüs und Fotos verwalten.":"menuEditText","Team informieren.":"teamInform","✉️ E-Mail-Empfänger":"emailRecipients","Diese Adressen sollen Krankmeldungen erhalten.":"emailReceive","E-Mail-Adresse":"emailAddress","E-Mail hinzufügen":"addEmail","Chef Login":"login","Benutzername":"username","Passwort":"password","Einloggen":"loginBtn"};
+function markStatic(){document.querySelectorAll('body *').forEach(e=>{if(e.children.length===0&&e.textContent.trim()&&!e.dataset.careconSrc)e.dataset.careconSrc=e.textContent.trim()})}
+const SHIFT_LINES={
+ de:{
+  "07:00 – 07:10  Kaffee und Frühstück vorbereiten":"07:00 – 07:10  Kaffee und Frühstück vorbereiten","07:10 – 07:40  Essen verteilen":"07:10 – 07:40  Essen verteilen","07:40  Ende der Verteilung":"07:40  Ende der Verteilung","08:00 – 09:00  Küchenarbeiten":"08:00 – 09:00  Küchenarbeiten","09:00  Geschirrspülen":"09:00  Geschirrspülen","Frühstück vorbereiten":"Frühstück vorbereiten","Essen verteilen":"Essen verteilen","Geschirr und Wagen bearbeiten":"Geschirr und Wagen bearbeiten","Küchenarbeiten":"Küchenarbeiten","Geschirrspülen":"Geschirrspülen","07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten":"07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten","07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)":"07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)","07:50  Müll und Karton entsorgen":"07:50  Müll und Karton entsorgen","08:00 – 09:00  Gemüse schneiden":"08:00 – 09:00  Gemüse schneiden","09:00  Hilfe beim Geschirrspülen (Schicht 1)":"09:00  Hilfe beim Geschirrspülen (Schicht 1)","09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen":"09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen","10:20  Wagen ausräumen, Müll und Karton abfahren":"10:20  Wagen ausräumen, Müll und Karton abfahren","10:40  Kessel und Kipa reinigen":"10:40  Kessel und Kipa reinigen","10:50  Dessert und Salat bereitstellen":"10:50  Dessert und Salat bereitstellen","11:00  Beginn der Verteilung":"11:00  Beginn der Verteilung"},
+ en:{"07:00 – 07:10  Kaffee und Frühstück vorbereiten":"07:00 – 07:10  Prepare coffee and breakfast","07:10 – 07:40  Essen verteilen":"07:10 – 07:40  Distribute food","07:40  Ende der Verteilung":"07:40  End of distribution","08:00 – 09:00  Küchenarbeiten":"08:00 – 09:00  Kitchen work","09:00  Geschirrspülen":"09:00  Wash dishes","Frühstück vorbereiten":"Prepare breakfast","Essen verteilen":"Distribute food","Geschirr und Wagen bearbeiten":"Handle dishes and carts","Küchenarbeiten":"Kitchen work","Geschirrspülen":"Wash dishes","07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten":"07:00 – 07:10  Prepare coffee, breakfast, yoghurt and sausage","07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)":"07:10 – 07:40  Distribute food (WB-3, WB-4, 5, 6, Stations 1-2, 3-4, 5-6, WB 1-2)","07:50  Müll und Karton entsorgen":"07:50  Dispose of rubbish and cardboard","08:00 – 09:00  Gemüse schneiden":"08:00 – 09:00  Cut vegetables","09:00  Hilfe beim Geschirrspülen (Schicht 1)":"09:00  Help with dishwashing (Shift 1)","09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen":"09:30  Collect carts with dirty dishes after breakfast","10:20  Wagen ausräumen, Müll und Karton abfahren":"10:20  Unload carts, remove rubbish and cardboard","10:40  Kessel und Kipa reinigen":"10:40  Clean Kessel and Kipa","10:50  Dessert und Salat bereitstellen":"10:50  Set out dessert and salad","11:00  Beginn der Verteilung":"11:00  Start distribution"},
+ fr:{"07:00 – 07:10  Kaffee und Frühstück vorbereiten":"07:00 – 07:10  Préparer le café et le petit-déjeuner","07:10 – 07:40  Essen verteilen":"07:10 – 07:40  Distribuer les repas","07:40  Ende der Verteilung":"07:40  Fin de la distribution","08:00 – 09:00  Küchenarbeiten":"08:00 – 09:00  Travaux de cuisine","09:00  Geschirrspülen":"09:00  Faire la vaisselle","Frühstück vorbereiten":"Préparer le petit-déjeuner","Essen verteilen":"Distribuer les repas","Geschirr und Wagen bearbeiten":"Gérer la vaisselle et les chariots","Küchenarbeiten":"Travaux de cuisine","Geschirrspülen":"Faire la vaisselle","07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten":"07:00 – 07:10  Préparer le café, le petit-déjeuner, les yaourts et la charcuterie","07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)":"07:10 – 07:40  Distribuer les repas (WB-3, WB-4, 5, 6, stations 1-2, 3-4, 5-6, WB 1-2)","07:50  Müll und Karton entsorgen":"07:50  Évacuer les déchets et le carton","08:00 – 09:00  Gemüse schneiden":"08:00 – 09:00  Couper les légumes","09:00  Hilfe beim Geschirrspülen (Schicht 1)":"09:00  Aider à la plonge (équipe 1)","09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen":"09:30  Ramener les chariots avec la vaisselle sale après le petit-déjeuner","10:20  Wagen ausräumen, Müll und Karton abfahren":"10:20  Vider les chariots, évacuer les déchets et le carton","10:40  Kessel und Kipa reinigen":"10:40  Nettoyer Kessel et Kipa","10:50  Dessert und Salat bereitstellen":"10:50  Mettre en place les desserts et la salade","11:00  Beginn der Verteilung":"11:00  Début de la distribution"},
+ hr:{"07:00 – 07:10  Kaffee und Frühstück vorbereiten":"07:00 – 07:10  Pripremiti kavu i doručak","07:10 – 07:40  Essen verteilen":"07:10 – 07:40  Podijeliti hranu","07:40  Ende der Verteilung":"07:40  Kraj podjele","08:00 – 09:00  Küchenarbeiten":"08:00 – 09:00  Kuhinjski poslovi","09:00  Geschirrspülen":"09:00  Pranje posuđa","Frühstück vorbereiten":"Pripremiti doručak","Essen verteilen":"Podijeliti hranu","Geschirr und Wagen bearbeiten":"Obraditi posuđe i kolica","Küchenarbeiten":"Kuhinjski poslovi","Geschirrspülen":"Pranje posuđa","07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten":"07:00 – 07:10  Pripremiti kavu, doručak, jogurt i kobasicu","07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)":"07:10 – 07:40  Podijeliti hranu (WB-3, WB-4, 5, 6, stanice 1-2, 3-4, 5-6, WB 1-2)","07:50  Müll und Karton entsorgen":"07:50  Zbrinuti otpad i karton","08:00 – 09:00  Gemüse schneiden":"08:00 – 09:00  Rezati povrće","09:00  Hilfe beim Geschirrspülen (Schicht 1)":"09:00  Pomoć pri pranju posuđa (smjena 1)","09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen":"09:30  Dovesti kolica s prljavim posuđem nakon doručka","10:20  Wagen ausräumen, Müll und Karton abfahren":"10:20  Isprazniti kolica, odvesti otpad i karton","10:40  Kessel und Kipa reinigen":"10:40  Očistiti Kessel i Kipa","10:50  Dessert und Salat bereitstellen":"10:50  Pripremiti desert i salatu","11:00  Beginn der Verteilung":"11:00  Početak podjele"},
+ uk:{"07:00 – 07:10  Kaffee und Frühstück vorbereiten":"07:00 – 07:10  Підготувати каву та сніданок","07:10 – 07:40  Essen verteilen":"07:10 – 07:40  Розвезти їжу","07:40  Ende der Verteilung":"07:40  Кінець розвезення","08:00 – 09:00  Küchenarbeiten":"08:00 – 09:00  Робота на кухні","09:00  Geschirrspülen":"09:00  Мити посуд","Frühstück vorbereiten":"Підготувати сніданок","Essen verteilen":"Розвезти їжу","Geschirr und Wagen bearbeiten":"Обробити посуд і візки","Küchenarbeiten":"Робота на кухні","Geschirrspülen":"Мити посуд","07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten":"07:00 – 07:10  Підготувати каву, сніданок, йогурт і ковбасу","07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)":"07:10 – 07:40  Розвезти їжу (WB-3, WB-4, 5, 6, станції 1-2, 3-4, 5-6, WB 1-2)","07:50  Müll und Karton entsorgen":"07:50  Винести сміття та картон","08:00 – 09:00  Gemüse schneiden":"08:00 – 09:00  Нарізати овочі","09:00  Hilfe beim Geschirrspülen (Schicht 1)":"09:00  Допомогти з миттям посуду (зміна 1)","09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen":"09:30  Забрати візки з брудним посудом після сніданку","10:20  Wagen ausräumen, Müll und Karton abfahren":"10:20  Розібрати візки, вивезти сміття та картон","10:40  Kessel und Kipa reinigen":"10:40  Помити Kessel та Kipa","10:50  Dessert und Salat bereitstellen":"10:50  Розставити десерт і салат","11:00  Beginn der Verteilung":"11:00  Початок розвезення"}
+};
+function shiftLine(x){return SHIFT_LINES[currentLang]?.[x]||x}
+function translateStatic(){document.querySelectorAll('[data-carecon-src]').forEach(e=>{const k=STATIC_MAP[e.dataset.careconSrc];if(k)e.textContent=tr(k)});$('themeBtn').title=currentLang==='de'?'Dunkles Design':currentLang==='en'?'Dark theme':currentLang==='fr'?'Thème sombre':currentLang==='hr'?'Tamna tema':'Темна тема';$('employee').placeholder=currentLang==='de'?'Name eingeben':currentLang==='en'?'Enter name':currentLang==='fr'?'Saisir le nom':currentLang==='hr'?'Unesite ime':'Введіть ім’я';$('newEmployee').placeholder=currentLang==='de'?'Vorname Nachname':currentLang==='en'?'First name Last name':currentLang==='fr'?'Prénom Nom':currentLang==='hr'?'Ime Prezime':'Ім’я Прізвище';$('newEmail').placeholder='name@firma.de';$('shift').placeholder=currentLang==='de'?'z. B. 5':currentLang==='en'?'e.g. 5':currentLang==='fr'?'ex. 5':currentLang==='hr'?'npr. 5':'наприклад 5'}
+
+async function applyLanguage(){
+ document.documentElement.lang=currentLang;
+ const nav=[['home','navHome'],['krank','navSick'],['arbeitsplan','navPlan'],['schichten','navShifts'],['urlaub','navVac'],['menu','navMenu'],['mitteilungen','navNotice'],['admin','navAdmin']];
+ const icons={home:'🏠 ',krank:'🤒 ',arbeitsplan:'📅 ',schichten:'👨‍🍳 ',urlaub:'🏖️ ',menu:'🍽️ ',mitteilungen:'📢 ',admin:'⚙️ '};
+ nav.forEach(([id,k])=>{const b=document.querySelector(`nav button[data-page="${id}"]`);if(b)b.textContent=icons[id]+tr(k)});
+ translateStatic(); if($('planHelpText'))$('planHelpText').textContent=tr('helpPlan');
+ $('workplanHeading').textContent='📅 '+tr('navPlan')+' – '+monthLabel(); if($('printMonthTitle'))$('printMonthTitle').textContent=tr('navPlan')+' – '+monthLabel(); if($('printMonthTitle'))$('printMonthTitle').textContent=tr('navPlan')+' – '+monthLabel();
+ $('workerStats').querySelector('h2').textContent=tr('stats'); const sb=$('saveBar'); if(sb&&sb.querySelector('b'))sb.querySelector('b').textContent=tr('unsaved');
+ $('copyPrevMonth').textContent=tr('copyPrev');$('todayMonth').textContent=tr('today');$('printPlan').textContent=tr('print');$('printVac').textContent=tr('print');$('savePlan').textContent=tr('save');$('welcomeTitle').textContent=tr('homeTitle');$('welcomeText').textContent=tr('homeText');
+ await renderWorkplan();renderVacationCalendar();
+ translateStatic();
+}
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('carecon_theme',document.body.classList.contains('dark')?'dark':'light');$('themeBtn').textContent=document.body.classList.contains('dark')?'☀️':'🌙'}
+
+function setAdminUI(){
+document.querySelectorAll(".admin-only").forEach(e=>e.style.display=isAdmin?(e.tagName==="BUTTON"?"inline-block":"block"):"none");
+if(isAdmin)$("adminBtn").textContent="Chef · Logout";else $("adminBtn").textContent="Chef";
+}
+
+function showPage(id){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+const page=$(id); if(!page)return;
+page.classList.add("active");
+document.querySelectorAll("nav button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+if(id==="arbeitsplan")renderWorkplan();
+if(id==="schichten")renderShifts();
+if(id==="urlaub")loadVacations();
+if(id==="menu")loadMenus();
+if(id==="mitteilungen")loadNotices();
+if(id==="krank"&&isAdmin)loadList();
+if(id==="admin"&&isAdmin){loadEmails();renderEmployeeAdmin();}
+window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("nav button[data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll("[data-go]").forEach(e=>e.onclick=()=>showPage(e.dataset.go));
+
+$("adminBtn").onclick=async()=>{
+if(isAdmin){await db.auth.signOut();isAdmin=false;setAdminUI();showPage("home");return}
+$("modal").style.display="flex";$("username").focus();
+};
+$("cancel").onclick=()=>{$("modal").style.display="none"};
+$("login").onclick=async()=>{
+$("loginError").style.display="none";
+if($("username").value.trim()!=="chef"){ $("loginError").textContent=tr("wrongLogin"); $("loginError").style.display="block"; return;}
+const {error}=await db.auth.signInWithPassword({email:ADMIN_EMAIL,password:$("password").value});
+if(error){$("loginError").textContent=tr("wrongLogin");$("loginError").style.display="block";return}
+isAdmin=true;$("modal").style.display="none";setAdminUI();showPage("admin");
+};
+
+async function loadEmployees(){
+const {data,error}=await db.from("mitarbeiter").select("*").eq("active",true).order("name");
+if(!error&&data&&data.length)names=data.map(x=>x.name);else names=[...defaultNames];
+$("employees").innerHTML=names.map(n=>`<option value="${escapeHtml(n)}">`).join("");
+}
+
+$("send").onclick=async()=>{
+$("formError").style.display="none";$("success").style.display="none";
+const employee=$("employee").value.trim(),shift=$("shift").value.trim(),from=$("from").value,to=$("to").value;
+if(!employee||!shift||!from||!to){$("formError").textContent=tr("missingFields");$("formError").style.display="block";return}
+if(to<from){$("formError").textContent=tr("invalidRange");$("formError").style.display="block";return}
+const days=Math.floor((new Date(to)-new Date(from))/86400000)+1;
+const {error}=await db.from("krankmeldungen").insert({employee,shift,date_from:from,date_to:to,days});
+if(error){$("formError").textContent=tr("error")+": "+error.message;$("formError").style.display="block";return}
+const {data:recipientRows}=await db.from("email_empfaenger").select("email").order("created_at");
+const recipients=(recipientRows||[]).map(x=>x.email).filter(Boolean);
+const mail=await db.functions.invoke("send-krankmeldung",{body:{employee,shift,date_from:from,date_to:to,days,recipients}});
+if(mail.error||mail.data?.success===false){
+$("success").innerHTML=`<b>${tr("sickSaved")}</b><br>${tr("emailFailed")}`;$("success").style.display="block";
+}else{$("success").innerHTML=`<b>${tr("sickSent")}</b>`;$("success").style.display="block"}
+$("shift").value="";$("from").value="";$("to").value="";
+if(isAdmin)loadList();
+};
+
+async function loadList(){
+if(!isAdmin)return;
+$("list").textContent=tr("loading");
+const {data,error}=await db.from("krankmeldungen").select("*").order("date_from",{ascending:false});
+if(error){$("list").textContent=tr("error")+": "+error.message;return}
+$("list").innerHTML=data?.length?data.map(x=>`<div class="item"><span><b>${escapeHtml(x.employee)}</b><br>${tr("shiftWord")} ${escapeHtml(x.shift)} · ${formatDate(x.date_from)} – ${formatDate(x.date_to)} · ${x.days} ${x.days===1?tr("day"):tr("dayPlural")}</span><button class="danger" onclick="deleteSick(${x.id})">${tr("delete")}</button></div>`).join(""):`<p class="muted">${tr("noSick")}</p>`;
+}
+async function deleteSick(id){if(!confirm(tr("deleteSickQ")))return;const {error}=await db.from("krankmeldungen").delete().eq("id",id);if(error)alert(tr("error")+": "+error.message);else loadList()}
+
+async function renderWorkplan(){
+ $("monthLabel").textContent=monthLabel();
+ $("workplanHeading").textContent='📅 '+tr('navPlan')+' – '+monthLabel(); if($("printMonthTitle"))$("printMonthTitle").textContent=tr('navPlan')+' – '+monthLabel();
+ const s=monthStart(),e=monthEnd(),days=[];for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(new Date(d));
+ const dates=days.map(iso);const {data,error}=await db.from("arbeitsplan").select("*").gte("work_date",dates[0]).lte("work_date",dates[dates.length-1]);
+ const {data:sickData}=await db.from("krankmeldungen").select("employee,shift,date_from,date_to").lte("date_from",dates[dates.length-1]).gte("date_to",dates[0]);
+ const sickMap={};(sickData||[]).forEach(x=>{const from=x.date_from>dates[0]?x.date_from:dates[0],to=x.date_to<dates[dates.length-1]?x.date_to:dates[dates.length-1];for(let d=new Date(from+'T00:00:00');iso(d)<=to;d.setDate(d.getDate()+1)){const key=x.employee+'|'+iso(d);(sickMap[key]??=[]).push(x.shift||'');}});
+ const entries=error?[]:(data||[]),map={};entries.forEach(x=>map[x.employee+"|"+x.work_date]=x.shift);pendingPlan={};
+ let head='<tr><th>'+tr('employee')+'</th>'+days.map(d=>`<th class="${getHoliday(iso(d))?'holiday':''}">${d.toLocaleDateString(locale(),{weekday:'short'})}<br><span class="small">${String(d.getDate()).padStart(2,'0')}</span>${getHoliday(iso(d))?`<span class="holiday-label">${escapeHtml(holidayName(getHoliday(iso(d)).name))}</span>`:''}</th>`).join('')+`<th>${tr('work')}</th><th>${tr('free')}</th><th>${tr('vac')}</th><th>${tr('sick')}</th></tr>`;
+ $('workTable').querySelector('thead').innerHTML=head;
+ let body='';const workShifts=['1','3','4','5','6','7'];
+ names.forEach(n=>{body+=`<tr><td>${escapeHtml(n)}</td>`;days.forEach(d=>{const ds=iso(d),v=map[n+'|'+ds]||'';const hol=getHoliday(ds),sick=(sickMap[n+'|'+ds]||[]).length>0;const sickLabel=sick?`<span class="sick-mini" title="Krank">K</span>`:'';if(isAdmin)body+=`<td class="shiftcell editable ${hol?'holiday':''}"><select data-name="${escapeHtml(n)}" data-date="${ds}" onchange="planChanged(this)"><option value="">—</option>${shiftOptions.map(o=>`<option value="${o}" ${v===o?'selected':''}>${escapeHtml(shiftLabel(o))}</option>`).join('')}</select><span class="shift-print">${escapeHtml(v?shiftLabel(v):'—')}</span>${sickLabel}</td>`;else body+=`<td class="shiftcell ${hol?'holiday':''}"><span class="shift-print">${escapeHtml(v?shiftLabel(v):'—')}</span>${sickLabel}</td>`});body+=`<td colspan="4"> </td></tr>`});
+ body+=`<tr class="count-row"><td>👥 ${tr('shiftCount')}</td>`;days.forEach(d=>{const ds=iso(d),c={};workShifts.forEach(sh=>c[sh]=0);names.forEach(n=>{let v=pendingPlan[n+'|'+ds];if(v===undefined)v=map[n+'|'+ds]||'';if(c[v]!==undefined)c[v]++});body+=`<td>${workShifts.map(sh=>sh+': '+c[sh]).join('<br>')}</td>`});body+='<td colspan="4">—</td></tr>';
+ $('workTable').querySelector('tbody').innerHTML=body;
+ await renderWorkerStats();
+ $('saveBar').style.display=isAdmin&&Object.keys(pendingPlan).length?'block':'none';if(isAdmin)renderEmployeeAdmin();
+}
+
+async function renderWorkerStats(){
+ const box=$('workerStatsList'); if(!box)return;
+ const currentYear=new Date().getFullYear();
+ const {data:emps,error:empError}=await db.from('mitarbeiter').select('name,vacation_days_total,extra_hours').eq('active',true).order('name');
+ if(empError){box.innerHTML=`<div class="note">${tr('error')}: ${escapeHtml(empError.message)}</div>`;return}
+ const {data:vacs,error:vacError}=await db.from('urlaub').select('employee,date_from,date_to');
+ if(vacError){box.innerHTML=`<div class="note">${tr('error')}: ${escapeHtml(vacError.message)}</div>`;return}
+ const items=(emps||[]).map(e=>{
+   const total=Number(e.vacation_days_total??30), days=new Set();
+   (vacs||[]).filter(v=>v.employee===e.name).forEach(v=>{const from=v.date_from<`${currentYear}-01-01`?`${currentYear}-01-01`:v.date_from;const to=v.date_to>`${currentYear}-12-31`?`${currentYear}-12-31`:v.date_to;if(from<=to)vacDays(from,to).forEach(x=>days.add(x));});
+   const left=Math.max(0,total-days.size);
+   const extra=Number(e.extra_hours||0);
+   return `<div class="worker-stat"><b>${escapeHtml(e.name)}</b><div>🏖️ ${tr('vacLeft')}: <strong>${left}</strong> ${tr('dayPlural')}</div><div>⏱️ ${tr('extraHours')}: <strong>${extra}</strong> h</div></div>`;
+ });
+ box.innerHTML=items.join('')||`<p class="muted">${tr('noEmployees')}</p>`;
+}
+
+function easterSunday(year){const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;return new Date(year,month-1,day)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return iso(x)}
+function getHoliday(ds){const d=new Date(ds+'T00:00:00'),y=d.getFullYear(),fixed={[y+'-01-01']:'Neujahr',[y+'-05-01']:'Tag der Arbeit',[y+'-10-03']:'Tag der Deutschen Einheit',[y+'-10-31']:'Reformationstag',[y+'-12-25']:'1. Weihnachtstag',[y+'-12-26']:'2. Weihnachtstag',[y+'-01-06']:'Heilige Drei Könige',[y+'-11-01']:'Allerheiligen'};if(fixed[ds])return {name:fixed[ds]};const e=iso(easterSunday(y));const moving={[addDays(e,-2)]:'Karfreitag',[addDays(e,1)]:'Ostermontag',[addDays(e,39)]:'Christi Himmelfahrt',[addDays(e,50)]:'Pfingstmontag',[addDays(e,60)]:'Fronleichnam'};return moving[ds]?{name:moving[ds]}:null}
+async function copyPreviousMonth(){if(!isAdmin)return;const prev=new Date(planMonth.getFullYear(),planMonth.getMonth()-1,1),ps=iso(prev),pe=iso(new Date(prev.getFullYear(),prev.getMonth()+1,0));const {data,error}=await db.from('arbeitsplan').select('*').gte('work_date',ps).lte('work_date',pe);if(error){alert(tr('error')+': '+error.message);return}if(!data?.length){alert(tr('noPrev'));return}if(!confirm(tr('copyQ')))return;let copied=0;for(const x of data){if(x.shift==='Urlaub'||x.shift==='Krank')continue;const oldDay=Number(x.work_date.slice(8,10)),last=new Date(planMonth.getFullYear(),planMonth.getMonth()+1,0).getDate();if(oldDay>last)continue;const target=iso(new Date(planMonth.getFullYear(),planMonth.getMonth(),oldDay));const r=x.shift?await db.from('arbeitsplan').upsert({employee:x.employee,work_date:target,shift:x.shift},{onConflict:'employee,work_date'}):await db.from('arbeitsplan').delete().eq('employee',x.employee).eq('work_date',target);if(r.error){alert(tr('error')+': '+r.error.message);return}copied++}await renderWorkplan();alert(`${copied} ${tr("copied")}`)}
+
+function planChanged(el){pendingPlan[el.dataset.name+"|"+el.dataset.date]=el.value;$("saveBar").style.display="block";updateCountsOnly()}
+function updateCountsOnly(){
+const rows=$("workTable").querySelector("tbody").rows;if(!rows.length)return;
+const countRow=rows[rows.length-1];
+for(let di=0;di<31;di++){
+const cell=countRow.cells[di+1];if(!cell)continue;const dateCell=$("workTable").querySelector("thead").rows[0].cells[di+1];if(!dateCell)continue;
+const day=di+1;if(day>new Date(planMonth.getFullYear(),planMonth.getMonth()+1,0).getDate())continue;
+const ds=iso(new Date(planMonth.getFullYear(),planMonth.getMonth(),day)),c={};shiftOptions.forEach(sh=>c[sh]=0);
+names.forEach(n=>{const key=n+"|"+ds;let v=pendingPlan[key];if(v===undefined){const select=document.querySelector(`select[data-name="${CSS.escape(n)}"][data-date="${ds}"]`);v=select?select.value:""}if(c[v]!==undefined)c[v]++});
+cell.innerHTML=shiftOptions.map(sh=>sh+": "+c[sh]).join("<br>");
+}}
+$("savePlan").onclick=async()=>{
+if(!isAdmin)return;
+const changes=Object.entries(pendingPlan);
+for(const [key,shift] of changes){
+const [employee,date]=key.split("|");
+let result;
+if(shift)result=await db.from("arbeitsplan").upsert({employee,work_date:date,shift},{onConflict:"employee,work_date"});
+else result=await db.from("arbeitsplan").delete().eq("employee",employee).eq("work_date",date);
+if(result.error){alert(tr("error")+" beim Speichern: "+result.error.message);return}
+}
+pendingPlan={};$("saveBar").style.display="none";await renderWorkplan();alert(tr("saved"));
+};
+$("prevMonth").onclick=()=>{planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()-1,1);renderWorkplan()};
+$("nextMonth").onclick=()=>{planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()+1,1);renderWorkplan()};
+$("todayMonth").onclick=()=>{const n=new Date();planMonth=new Date(n.getFullYear(),n.getMonth(),1);renderWorkplan()};
+$("printPlan").onclick=()=>{showPage("arbeitsplan");setTimeout(()=>window.print(),100)};
+
+async function renderEmployeeAdmin(){
+if(!isAdmin)return;
+const box=$("employeeAdminList"),{data,error}=await db.from("mitarbeiter").select("*").order("active",{ascending:false}).order("name");
+if(error){box.innerHTML=`<div class="note">${tr("error")}: ${escapeHtml(error.message)}</div>`;return}
+box.innerHTML=(data||[]).map(x=>`<div class="item" style="display:block"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span><b>${escapeHtml(x.name)}</b> <span class="pill">${x.active?tr("active"):tr("inactive")}</span></span><span>${x.active?`<button class="secondary" onclick="toggleEmployee(${x.id},false)">${tr("deactivate")}</button>`:`<button class="secondary" onclick="toggleEmployee(${x.id},true)">${tr("activate")}</button>`} <button class="danger" onclick="deleteEmployee(${x.id})">${tr("delete")}</button></span></div>${x.active?`<div class="formgrid" style="margin-top:10px"><div><label>${tr("vacTotal")}</label><input type="number" min="0" step="0.5" id="vacTotal_${x.id}" value="${Number(x.vacation_days_total??30)}"></div><div><label>${tr("extraHours")}</label><input type="number" step="0.25" id="extraHours_${x.id}" value="${Number(x.extra_hours||0)}"></div><div style="display:flex;align-items:end"><button class="primary" onclick="saveEmployeeStats(${x.id})">${tr("save")}</button></div></div>`:""}</div>`).join("")||`<p class="muted">${tr("noEmployees")}</p>`;
+}
+$("addEmployee").onclick=async()=>{
+if(!isAdmin)return;const name=$("newEmployee").value.trim();if(!name)return;
+const {error}=await db.from("mitarbeiter").insert({name,active:true});if(error){alert(tr("error")+": "+error.message);return}
+$("newEmployee").value="";await loadEmployees();await renderEmployeeAdmin();await renderWorkplan();
+};
+async function saveEmployeeStats(id){
+ if(!isAdmin)return;
+ const vacation_days_total=Number($(`vacTotal_${id}`).value); const extra_hours=Number($(`extraHours_${id}`).value);
+ if(!Number.isFinite(vacation_days_total)||vacation_days_total<0||!Number.isFinite(extra_hours)){alert(tr('error'));return}
+ const {error}=await db.from('mitarbeiter').update({vacation_days_total,extra_hours}).eq('id',id);
+ if(error){alert(tr('error')+': '+error.message);return}
+ await renderEmployeeAdmin(); await renderWorkerStats(); alert(tr('saved'));
+}
+async function toggleEmployee(id,active){const {error}=await db.from("mitarbeiter").update({active}).eq("id",id);if(error)alert(tr("error")+": "+error.message);else{await loadEmployees();renderEmployeeAdmin();renderWorkplan()}}
+async function deleteEmployee(id){if(!confirm(tr("employee")+" wirklich löschen?"))return;const {error}=await db.from("mitarbeiter").delete().eq("id",id);if(error)alert(tr("error")+": "+error.message);else{await loadEmployees();renderEmployeeAdmin();renderWorkplan()}}
+
+const defaultShiftPlans={
+1:["07:00 – 07:10  Kaffee und Frühstück vorbereiten","07:10 – 07:40  Essen verteilen","07:40  Ende der Verteilung","08:00 – 09:00  Küchenarbeiten","09:00  Geschirrspülen"],
+3:["Frühstück vorbereiten","Essen verteilen","Geschirr und Wagen bearbeiten"],
+4:["Frühstück vorbereiten","Essen verteilen","Küchenarbeiten"],
+5:["07:00 – 07:10  Kaffee, Frühstück, Joghurt und Wurst vorbereiten","07:10 – 07:40  Essen verteilen (WB-3, WB-4, 5, 6, Station 1-2, 3-4, 5-6, WB 1-2)","07:40  Ende der Verteilung","07:50  Müll und Karton entsorgen","08:00 – 09:00  Gemüse schneiden","09:00  Hilfe beim Geschirrspülen (Schicht 1)","09:30  Wagen mit schmutzigem Geschirr nach dem Frühstück holen","10:20  Wagen ausräumen, Müll und Karton abfahren","10:40  Kessel und Kipa reinigen","10:50  Dessert und Salat bereitstellen","11:00  Beginn der Verteilung"],
+6:["Frühstück vorbereiten","Essen verteilen","Küchenarbeiten","Geschirrspülen"],
+7:["Frühstück vorbereiten","Essen verteilen","Küchenarbeiten"]
+};
+let currentShift=5;
+function getShiftPlans(){try{return {...defaultShiftPlans,...JSON.parse(localStorage.getItem("carecon_shiftplans")||"{}")}}catch{return defaultShiftPlans}}
+function renderShifts(){
+const plans=getShiftPlans();$("shiftButtons").innerHTML="";
+shiftPlanOptions.forEach(i=>{const b=document.createElement("button");b.className=i===String(currentShift)?"primary":"secondary";b.textContent=tr("shiftWord")+" "+i;b.onclick=()=>{currentShift=i;renderShifts()};$("shiftButtons").appendChild(b)});
+$("shiftTitle").textContent=tr("shiftWord")+" "+currentShift;
+$("shiftContent").innerHTML=(plans[currentShift]||[]).map(x=>`<div class="item"><span>${escapeHtml(shiftLine(x))}</span></div>`).join("")||`<p class="muted">${tr("noPlan")}</p>`;
+if(isAdmin){$("shiftEditor").style.display="block";$("shiftEditor").innerHTML= `<h3>${tr("shiftWord")} ${currentShift}</h3><textarea id="shiftTextEditor">${escapeHtml((plans[currentShift]||[]).join("\n"))}</textarea><button class="primary" style="margin-top:10px" onclick="saveShiftLocal()">${tr("save")}</button><p class="small muted">Dieser Schicht-Ablauf wird auf diesem Gerät gespeichert.</p>`}else $("shiftEditor").style.display="none";
+}
+function saveShiftLocal(){const plans=getShiftPlans();plans[currentShift]=$("shiftTextEditor").value.split("\n").map(x=>x.trim()).filter(Boolean);localStorage.setItem("carecon_shiftplans",JSON.stringify(plans));renderShifts();alert(tr("shiftSaved"))}
+
+let vacationYear=new Date().getFullYear();
+let vacationData=[];
+function vacDays(from,to){const out=[];let d=new Date(from+"T00:00:00"),e=new Date(to+"T00:00:00");for(;d<=e;d.setDate(d.getDate()+1))out.push(iso(d));return out}
+async function loadVacations(){
+ const cal=$("vacationCalendar"); cal.innerHTML=tr("loading");
+ const {data,error}=await db.from("urlaub").select("*").order("date_from");
+ if(error){cal.innerHTML=`<div class="note">${tr("error")}: ${escapeHtml(error.message)}</div>`;return}
+ vacationData=data||[]; $("vacYearLabel").textContent=vacationYear;
+ renderVacationCalendar();
+ if(isAdmin)renderVacationList();
+}
+function renderVacationCalendar(){
+ const cal=$("vacationCalendar");const months=[];const dows={de:['Mo','Di','Mi','Do','Fr','Sa','So'],en:['Mo','Tu','We','Th','Fr','Sa','Su'],fr:['Lu','Ma','Me','Je','Ve','Sa','Di'],hr:['Po','Ut','Sr','Če','Pe','Su','Ne'],uk:['Пн','Вт','Ср','Чт','Пт','Сб','Нд']}[currentLang]||['Mo','Di','Mi','Do','Fr','Sa','So'];
+ for(let m=0;m<12;m++){const first=new Date(vacationYear,m,1),last=new Date(vacationYear,m+1,0),offset=(first.getDay()+6)%7;let html=`<div class="mini-month"><div class="mini-head">${first.toLocaleDateString(locale(),{month:'long'})}</div><div class="mini-days">${dows.map(x=>`<div class="mini-dow">${x}</div>`).join('')}`;for(let i=0;i<offset;i++)html+='<div class="mini-day empty"></div>';for(let day=1;day<=last.getDate();day++){const ds=iso(new Date(vacationYear,m,day)),people=vacationData.filter(v=>v.date_from<=ds&&v.date_to>=ds).map(v=>v.employee),hol=getHoliday(ds);html+=`<div class="mini-day ${hol?'holiday':''}"><span class="num">${day}</span>${hol?`<span class="holiday-label">${escapeHtml(holidayName(hol.name))}</span>`:''}${people.map(n=>`<span class="vac-name" title="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join('')}</div>`}html+='</div></div>';months.push(html)}cal.innerHTML=months.join('');
+}
+
+function renderVacationList(){
+ const box=$("vacationList");
+ if(!vacationData.length){box.innerHTML=`<p class="muted">${tr("noVac")}</p>`;return}
+ box.innerHTML=vacationData.map(x=>`<div class="item"><span><b>${escapeHtml(x.employee)}</b><br>${formatDate(x.date_from)} – ${formatDate(x.date_to)}</span><button class="danger" onclick="deleteVacation(${x.id})">${tr("delete")}</button></div>`).join("");
+}
+async function deleteVacation(id){if(!confirm(tr("deleteVacQ")))return;const {error}=await db.from("urlaub").delete().eq("id",id);if(error)alert(tr("error")+": "+error.message);else loadVacations()}
+$("addVacationBtn").onclick=async()=>{if(!isAdmin)return;await loadEmployees();$("vacEmployee").innerHTML=names.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");$("vacFrom").value="";$("vacTo").value="";$("vacError").style.display="none";$("vacationForm").style.display="block";};
+$("cancelVacation").onclick=()=>$("vacationForm").style.display="none";
+$("saveVacation").onclick=async()=>{const employee=$("vacEmployee").value,from=$("vacFrom").value,to=$("vacTo").value;if(!employee||!from||!to){$("vacError").textContent=tr("missingFields");$("vacError").style.display="block";return}if(to<from){$("vacError").textContent=tr("invalidRange");$("vacError").style.display="block";return}const {error}=await db.from("urlaub").insert({employee,date_from:from,date_to:to});if(error){$("vacError").textContent=tr("error")+": "+error.message;$("vacError").style.display="block";return}$("vacationForm").style.display="none";vacationYear=new Date(from+"T00:00:00").getFullYear();loadVacations();};
+$("prevVacYear").onclick=()=>{vacationYear--;loadVacations()};$("nextVacYear").onclick=()=>{vacationYear++;loadVacations()};
+$("printVac").onclick=()=>{showPage("urlaub");setTimeout(()=>window.print(),100)};
+
+function fileToDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
+async function loadMenus(){
+const box=$("menuList"),{data,error}=await db.from("menueplan").select("*").order("menu_date");
+if(error){box.innerHTML=`<div class="note">${tr("error")}: ${escapeHtml(error.message)}</div>`;return}
+box.innerHTML=data?.length?data.map(x=>`<div class="menu-card">${x.image_url?`<img class="menu-img" src="${escapeHtml(x.image_url)}">`:""}<div style="flex:1"><b>${formatDate(x.menu_date)}</b><h3 style="margin:6px 0">${escapeHtml(x.title)}</h3><div class="muted">${escapeHtml(x.description||"")}</div>${isAdmin?`<div style="margin-top:12px"><button class="secondary" onclick="editMenu(${x.id})">${tr("edit")}</button> <button class="danger" onclick="deleteMenu(${x.id})">${tr("delete")}</button></div>`:""}</div></div>`).join(""):`<p class="muted">${tr("noMenu")}</p>`;
+}
+async function editMenu(id){
+const {data,error}=await db.from("menueplan").select("*").eq("id",id).single();if(error){alert(tr("error")+": "+error.message);return}
+const date=prompt(tr("datePrompt"),data.menu_date);if(!date)return;const title=prompt(tr("menuPrompt"),data.title);if(!title)return;const description=prompt(tr("descEdit"),data.description||"");
+const {error:e}=await db.from("menueplan").update({menu_date:date,title,description:description||""}).eq("id",id);if(e)alert(tr("error")+": "+e.message);else loadMenus();
+}
+async function deleteMenu(id){if(!confirm(tr("deleteMenuQ")))return;const {error}=await db.from("menueplan").delete().eq("id",id);if(error)alert(tr("error")+": "+error.message);else loadMenus()}
+$("addMenuBtn").onclick=async()=>{
+if(!isAdmin)return;
+const date=prompt(tr("datePrompt"));if(!date)return;
+const title=prompt(tr("menuPrompt"));if(!title)return;
+const description=prompt(tr("descPrompt"))||"";
+const fileInput=document.createElement("input");fileInput.type="file";fileInput.accept="image/*";
+const choose=confirm(tr("photoQ"));
+let image_url=null;
+if(choose){fileInput.click();await new Promise(resolve=>fileInput.onchange=resolve);if(fileInput.files[0])image_url=await fileToDataURL(fileInput.files[0])}
+const {error}=await db.from("menueplan").insert({menu_date:date,title,description,image_url});
+if(error)alert(tr("error")+": "+error.message);else loadMenus();
+};
+
+async function loadNotices(){
+const box=$("noticeList"),{data,error}=await db.from("mitteilungen").select("*").order("created_at",{ascending:false});
+if(error){box.innerHTML=`<div class="note">${tr("error")}: ${escapeHtml(error.message)}</div>`;return}
+box.innerHTML=data?.length?data.map(x=>`<div class="note"><b>${escapeHtml(x.title)}</b><br>${escapeHtml(x.body)}<br><small class="muted">${new Date(x.created_at).toLocaleString(locale())}</small>${isAdmin?`<br><button class="secondary" style="margin-top:8px" onclick="editNotice(${x.id})">${tr("edit")}</button> <button class="danger" onclick="deleteNotice(${x.id})">${tr("delete")}</button>`:""}</div>`).join(""):`<p class="muted">${tr("noNotice")}</p>`;
+}
+$("addNoticeBtn").onclick=async()=>{
+if(!isAdmin)return;const title=prompt(tr("titlePrompt"));if(!title)return;const body=prompt(tr("noticePrompt"));if(!body)return;
+const {error}=await db.from("mitteilungen").insert({title,body});if(error)alert(tr("error")+": "+error.message);else loadNotices();
+};
+async function editNotice(id){const {data,error}=await db.from("mitteilungen").select("*").eq("id",id).single();if(error){alert(tr("error")+": "+error.message);return}const title=prompt(tr("titlePrompt"),data.title);if(!title)return;const body=prompt(tr("noticePrompt"),data.body);if(!body)return;const {error:e}=await db.from("mitteilungen").update({title,body}).eq("id",id);if(e)alert(tr("error")+": "+e.message);else loadNotices()}
+async function deleteNotice(id){if(!confirm(tr("deleteNoticeQ")))return;const {error}=await db.from("mitteilungen").delete().eq("id",id);if(error)alert(tr("error")+": "+error.message);else loadNotices()}
+
+async function loadEmails(){
+if(!isAdmin)return;const box=$("emailList"),{data,error}=await db.from("email_empfaenger").select("*").order("created_at");
+if(error){box.innerHTML=`<div class="note">${tr("error")}: ${escapeHtml(error.message)}</div>`;return}
+box.innerHTML=data?.length?data.map(x=>`<div class="item"><span>${escapeHtml(x.email)}</span><button class="danger" onclick="deleteEmail(${x.id})">${tr("delete")}</button></div>`).join(""):`<p class="muted">${tr("noEmails")}</p>`;
+}
+$("addEmail").onclick=async()=>{
+if(!isAdmin)return;$("emailError").style.display="none";const email=$("newEmail").value.trim().toLowerCase();if(!email)return;if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$("emailError").textContent=tr("error")+": Ungültige E-Mail-Adresse";$("emailError").style.display="block";return;}
+const {error}=await db.from("email_empfaenger").insert({email});if(error){$("emailError").textContent=tr("error")+": "+error.message;$("emailError").style.display="block";return}
+$("newEmail").value="";loadEmails();
+};
+async function deleteEmail(id){if(!confirm(tr("deleteEmailQ")))return;const {error}=await db.from("email_empfaenger").delete().eq("id",id);if(error)alert(tr("error")+": "+error.message);else loadEmails()}
+$("emailTile").onclick=()=>{if(isAdmin){$("emailCard").scrollIntoView({behavior:"smooth"})}};
+
+$('copyPrevMonth').onclick=copyPreviousMonth;
+$('languageSelect').value=currentLang;$('languageSelect').onchange=()=>{currentLang=$('languageSelect').value;localStorage.setItem('carecon_lang',currentLang);applyLanguage()};
+if(localStorage.getItem('carecon_theme')==='dark'){$('themeBtn').textContent='☀️';document.body.classList.add('dark')}
+$('themeBtn').onclick=toggleTheme;
+
+(async()=>{
+const {data:{session}}=await db.auth.getSession();
+if(session?.user?.email===ADMIN_EMAIL)isAdmin=true;
+setAdminUI();markStatic();await loadEmployees();await renderWorkplan();renderShifts();applyLanguage();
+})();
+</script>
+</body>
+</html>
