@@ -1,36 +1,226 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Krankmeldung – Küche</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f5f7;color:#18212b}.wrap{min-height:100vh;display:flex;justify-content:center;padding:24px}.card{width:100%;max-width:540px;background:#fff;border-radius:24px;padding:28px;box-shadow:0 15px 45px rgba(20,30,40,.1)}.logo{width:58px;height:58px;border-radius:17px;background:#18212b;color:#fff;display:grid;place-items:center;font-size:26px;margin-bottom:18px}h1{margin:0 0 7px;font-size:28px}.sub{margin:0 0 28px;color:#6b7480}label{display:block;font-weight:650;margin:18px 0 8px}input{width:100%;padding:14px 15px;border:1px solid #d9dee4;border-radius:12px;background:#fff;font-size:16px;outline:none}input:focus{border-color:#596675;box-shadow:0 0 0 3px rgba(89,102,117,.1)}.dates{display:grid;grid-template-columns:1fr 1fr;gap:12px}button{width:100%;border:0;border-radius:13px;padding:15px;margin-top:26px;background:#18212b;color:#fff;font-size:16px;font-weight:700;cursor:pointer}button:disabled{opacity:.55}.msg,.error,.result{display:none;margin-top:16px;padding:13px 14px;border-radius:12px}.msg{background:#eaf7ef;color:#196b3a;font-weight:600}.error{background:#fff0f0;color:#a32929;font-weight:600}.result{border:1px solid #e4e8ec;background:#fafbfc;font-size:14px;line-height:1.65}.overview{margin-top:28px;padding-top:24px;border-top:1px solid #edf0f2}.overview-head{display:flex;align-items:center;justify-content:space-between}.overview h2{margin:0;font-size:19px}.overview p{margin:5px 0 0;color:#7b848e;font-size:13px}#countBadge{min-width:30px;height:30px;padding:0 9px;border-radius:15px;background:#eef1f4;display:grid;place-items:center;font-weight:700}.leave-list{margin-top:14px;display:grid;gap:9px}.leave-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;background:#f7f8f9;border-radius:12px}.leave-name{font-weight:700;font-size:14px}.leave-dates{color:#747d87;font-size:12px;margin-top:3px}.leave-days{font-weight:750;white-space:nowrap}.delete{width:auto;margin:0;padding:8px 10px;font-size:12px;background:#fff;color:#7b2222;border:1px solid #d9dee4}.empty{padding:14px;text-align:center;color:#929aa4;font-size:13px;background:#f7f8f9;border-radius:12px}.admin{text-align:right;margin-top:12px}.admin button{width:auto;margin:0;padding:9px 12px;font-size:12px;background:#eef1f4;color:#303a44}.footer{text-align:center;color:#929aa4;font-size:12px;margin-top:20px}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}.modal-card{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:380px}.modal-card h3{margin:0 0 8px}.modal-card p{color:#727b85;font-size:13px}.actions{display:flex;gap:10px}.actions button{margin-top:15px}.secondary{background:#eef1f4;color:#18212b}@media(max-width:430px){.card{padding:22px}.dates{grid-template-columns:1fr}}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#20252b}
+header{background:#fff;border-bottom:1px solid #ddd;padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:700}.chef{background:#20252b;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:700}
+main{max-width:760px;margin:30px auto;padding:0 16px}
+.card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 3px 14px #00000012;margin-bottom:20px}
+h1{margin-top:0;font-size:26px}h2{font-size:20px}
+label{display:block;font-weight:700;margin:14px 0 6px}
+input{width:100%;padding:12px;border:1px solid #ccd2d8;border-radius:8px;font-size:16px}
+button{cursor:pointer}
+.send{width:100%;margin-top:20px;padding:13px;border:0;border-radius:8px;background:#20252b;color:#fff;font-size:16px;font-weight:700}
+.success{display:none;background:#eaf7ed;border:1px solid #b9dfc1;padding:14px;border-radius:8px;margin-top:15px}
+.error{display:none;color:#b00020;margin-top:10px}
+#adminPanel{display:none}
+.item{border:1px solid #ddd;border-radius:9px;padding:13px;margin:10px 0;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.delete{background:#b42318;color:#fff;border:0;border-radius:7px;padding:8px 10px}
+.muted{color:#667085}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:16px}
+.modalbox{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:400px}
+.modalbuttons{display:flex;gap:10px;margin-top:18px}
+.modalbuttons button{flex:1;padding:11px;border-radius:8px;border:0}
+.cancel{background:#eee}
+.login{background:#20252b;color:#fff}
+@media(max-width:500px){main{margin:18px auto}.card{padding:18px}.item{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
-<div class="wrap"><main class="card">
-<div class="logo">🏥</div><h1>Krankmeldung</h1><p class="sub">Küche · Mitarbeiter-Meldung</p>
-<form id="form">
-<label>Mitarbeiter</label><input id="employee" list="employees" placeholder="Name eingeben" required>
-<datalist id="employees"><option value="Tymechko Nazar"><option value="Fisunov Ostap"><option value="Yaroslav Marinovskiy"><option value="Eike Birkhofen"></datalist>
-<label>Schicht</label><input id="shift" placeholder="z. B. Schicht 5" required>
-<label>Zeitraum</label><div class="dates"><input id="from" type="date" required><input id="to" type="date" required></div>
-<button id="send" type="submit">Krankmeldung senden</button>
-<div class="msg" id="msg">✓ Krankmeldung erfolgreich gespeichert</div><div class="error" id="err"></div><div class="result" id="result"></div>
-</form>
-<section class="overview"><div class="overview-head"><div><h2>Aktuelle Krankmeldungen</h2><p>Wer ist krank und wie viele Tage?</p></div><span id="countBadge">0</span></div><div id="list" class="leave-list"><div class="empty">Lade…</div></div><div class="admin"><button type="button" id="admin">Admin</button></div></section>
-<div class="footer">Interner Küchenbereich</div>
-</main></div>
-<div class="modal" id="modal"><div class="modal-card"><h3>Admin-Bereich</h3><p>Anmelden, um Krankmeldungen zu löschen.</p><input id="email" type="email" placeholder="Admin-E-Mail"><input id="pass" type="password" placeholder="Passwort"><div class="actions"><button class="secondary" type="button" id="close">Abbrechen</button><button type="button" id="login">Anmelden</button></div><div class="error" id="loginErr"></div></div></div>
+<header>
+  <div class="logo">Küche · Krankmeldung</div>
+  <button class="chef" id="adminBtn">Chef</button>
+</header>
+
+<main>
+  <div class="card">
+    <h1>Krankmeldung</h1>
+    <p class="muted">Bitte die Krankmeldung vollständig ausfüllen.</p>
+
+    <label for="employee">Mitarbeiter</label>
+    <input id="employee" list="employees" placeholder="Name eingeben">
+    <datalist id="employees">
+      <option value="Tymechko Nazar">
+      <option value="Fisunov Ostap">
+      <option value="Yaroslav Marinovskiy">
+      <option value="Eike Birkhofen">
+    </datalist>
+
+    <label for="shift">Schicht</label>
+    <input id="shift" placeholder="z. B. Schicht 5">
+
+    <label for="from">Von</label>
+    <input id="from" type="date">
+
+    <label for="to">Bis</label>
+    <input id="to" type="date">
+
+    <button class="send" id="send">Krankmeldung senden</button>
+    <div class="error" id="formError"></div>
+    <div class="success" id="success"></div>
+  </div>
+
+  <div class="card" id="adminPanel">
+    <h2>Aktuelle Krankmeldungen</h2>
+    <p class="muted">Nur für den Chef sichtbar.</p>
+    <div id="list">Lade Daten…</div>
+    <button class="send" id="logout">Abmelden</button>
+  </div>
+</main>
+
+<div class="modal" id="modal">
+  <div class="modalbox">
+    <h2>Chef Login</h2>
+    <label for="username">Benutzername</label>
+    <input id="username" autocomplete="username" placeholder="chef">
+    <label for="password">Passwort</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="Passwort">
+    <div class="error" id="loginError"></div>
+    <div class="modalbuttons">
+      <button class="cancel" id="cancel">Abbrechen</button>
+      <button class="login" id="login">Einloggen</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const URL="https://nuicmxcgkqeflmeqjpve.supabase.co",KEY="sb_publishable_QSNawLIsldcQxAqIWvMHVg_V7hH7tfU",db=supabase.createClient(URL,KEY);
-const $=id=>document.getElementById(id), from=$("from"),to=$("to");
-function days(a,b){return Math.round((new Date(b)-new Date(a))/86400000)+1}function fmt(x){return new Date(x+"T00:00:00").toLocaleDateString("de-DE")}function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-from.onchange=()=>{to.min=from.value;if(to.value&&to.value<from.value)to.value=from.value};
-async function load(){let {data,error}=await db.from("krankmeldungen").select("*").order("created_at",{ascending:false});if(error){$("list").innerHTML='<div class="empty">Fehler beim Laden.</div>';return}let {data:{user}}=await db.auth.getUser();$("countBadge").textContent=data.length;if(!data.length){$("list").innerHTML='<div class="empty">Noch keine Krankmeldungen eingetragen.</div>';return}$("list").innerHTML=data.map(x=>`<div class="leave-item"><div><div class="leave-name">${esc(x.employee)}</div><div class="leave-dates">${fmt(x.date_from)} – ${fmt(x.date_to)} · ${esc(x.shift)}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="leave-days">${x.days} ${x.days==1?"Tag":"Tage"}</div>${user?`<button class="delete" data-id="${x.id}" type="button">Löschen</button>`:""}</div></div>`).join("");document.querySelectorAll(".delete").forEach(b=>b.onclick=async()=>{if(!confirm("Diese Krankmeldung löschen?"))return;let r=await db.from("krankmeldungen").delete().eq("id",b.dataset.id);if(r.error)alert("Löschen nicht möglich.");else load()})}
-$("form").onsubmit=async e=>{e.preventDefault();$("msg").style.display="none";$("err").style.display="none";$("result").style.display="none";if(to.value<from.value){$("err").textContent="Das Enddatum darf nicht vor dem Startdatum liegen.";$("err").style.display="block";return}let x={employee:$("employee").value.trim(),shift:$("shift").value.trim(),date_from:from.value,date_to:to.value,days:days(from.value,to.value)};$("send").disabled=true;$("send").textContent="Wird gespeichert…";let r=await db.from("krankmeldungen").insert(x);$("send").disabled=false;$("send").textContent="Krankmeldung senden";if(r.error){$("err").textContent=r.error.message;$("err").style.display="block";return}$("msg").style.display="block";$("result").style.display="block";$("result").innerHTML=`<b>Mitarbeiter:</b> ${esc(x.employee)}<br><b>Schicht:</b> ${esc(x.shift)}<br><b>Von:</b> ${fmt(x.date_from)}<br><b>Bis:</b> ${fmt(x.date_to)}<br><b>Dauer:</b> ${x.days} ${x.days==1?"Tag":"Tage"}<br><b>E-Mail:</b> fisunow3@gmail.com`;e.target.reset();to.min="";load()};
-$("admin").onclick=()=>{$("modal").style.display="flex";$("loginErr").style.display="none"};$("close").onclick=()=>$("modal").style.display="none";$("login").onclick=async()=>{let r=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});if(r.error){$("loginErr").textContent="Anmeldung fehlgeschlagen.";$("loginErr").style.display="block"}else{$("modal").style.display="none";load()}};db.auth.onAuthStateChange(()=>load());load();
+const SUPABASE_URL="https://nuicmxcgkqeflmeqjpve.supabase.co";
+const SUPABASE_KEY="sb_publishable_QSNawLIsldcQxAqIWvMHVg_V7hH7tfU";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const ADMIN_EMAIL="chef@carecon.com";
+
+const $=id=>document.getElementById(id);
+
+function daysBetween(a,b){
+  const x=new Date(a+"T00:00:00"), y=new Date(b+"T00:00:00");
+  return Math.floor((y-x)/86400000)+1;
+}
+
+$("send").onclick=async()=>{
+  $("formError").style.display="none";
+  $("success").style.display="none";
+  const employee=$("employee").value.trim();
+  const shift=$("shift").value.trim();
+  const date_from=$("from").value;
+  const date_to=$("to").value;
+
+  if(!employee||!shift||!date_from||!date_to){
+    $("formError").textContent="Bitte alle Felder ausfüllen.";
+    $("formError").style.display="block"; return;
+  }
+  if(date_to<date_from){
+    $("formError").textContent="Das Datum „Bis“ darf nicht vor „Von“ liegen.";
+    $("formError").style.display="block"; return;
+  }
+
+  const days=daysBetween(date_from,date_to);
+  const {error}=await db.from("krankmeldungen").insert({
+    employee,shift,date_from,date_to,days
+  });
+
+  if(error){
+    $("formError").textContent="Fehler beim Senden: "+error.message;
+    $("formError").style.display="block"; return;
+  }
+
+  $("success").innerHTML="<b>Krankmeldung wurde erfolgreich gesendet.</b><br>"+employee+" · "+days+" Tag"+(days===1?"":"e");
+  $("success").style.display="block";
+  $("shift").value=""; $("from").value=""; $("to").value="";
+};
+
+$("adminBtn").onclick=()=>{
+  $("modal").style.display="flex";
+  $("loginError").style.display="none";
+  $("username").value=""; $("password").value="";
+};
+
+$("cancel").onclick=()=>{$("modal").style.display="none"};
+
+$("login").onclick=async()=>{
+  $("loginError").style.display="none";
+  const username=$("username").value.trim();
+  const password=$("password").value;
+
+  if(username!=="chef"){
+    $("loginError").textContent="Falscher Benutzername oder Passwort.";
+    $("loginError").style.display="block"; return;
+  }
+
+  const {error}=await db.auth.signInWithPassword({
+    email:ADMIN_EMAIL,
+    password
+  });
+
+  if(error){
+    $("loginError").textContent="Falscher Benutzername oder Passwort.";
+    $("loginError").style.display="block"; return;
+  }
+
+  $("modal").style.display="none";
+  $("adminPanel").style.display="block";
+  loadList();
+};
+
+$("logout").onclick=async()=>{
+  await db.auth.signOut();
+  $("adminPanel").style.display="none";
+};
+
+async function loadList(){
+  $("list").textContent="Lade Daten…";
+  const {data,error}=await db.from("krankmeldungen")
+    .select("*").order("date_from",{ascending:false});
+
+  if(error){
+    $("list").textContent="Fehler beim Laden: "+error.message;
+    return;
+  }
+  if(!data.length){
+    $("list").innerHTML='<p class="muted">Keine Krankmeldungen vorhanden.</p>';
+    return;
+  }
+
+  $("list").innerHTML=data.map(x=>`
+    <div class="item">
+      <div>
+        <b>${escapeHtml(x.employee)}</b><br>
+        Schicht: ${escapeHtml(x.shift)}<br>
+        ${formatDate(x.date_from)} – ${formatDate(x.date_to)}
+        · <b>${x.days} Tag${x.days===1?"":"e"}</b>
+      </div>
+      <button class="delete" onclick="deleteEntry(${x.id})">Löschen</button>
+    </div>
+  `).join("");
+}
+
+async function deleteEntry(id){
+  if(!confirm("Diese Krankmeldung wirklich löschen?")) return;
+  const {error}=await db.from("krankmeldungen").delete().eq("id",id);
+  if(error){alert("Fehler: "+error.message);return;}
+  loadList();
+}
+
+function formatDate(s){
+  const p=s.split("-");
+  return p[2]+"."+p[1]+"."+p[0];
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+(async()=>{
+  const {data:{session}}=await db.auth.getSession();
+  if(session && session.user.email===ADMIN_EMAIL){
+    $("adminPanel").style.display="block";
+    loadList();
+  }
+})();
 </script>
-</body></html>
+</body>
+</html>
