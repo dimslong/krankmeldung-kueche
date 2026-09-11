@@ -129,6 +129,17 @@ $("send").onclick=async()=>{
     $("formError").style.display="block"; return;
   }
 
+  // E-Mail über die Supabase Edge Function senden
+  const mail = await db.functions.invoke("image-to-pdf-processor", {
+    body: { employee, shift, date_from, date_to, days }
+  });
+
+  if(mail.error){
+    $("formError").textContent="Krankmeldung gespeichert, aber E-Mail konnte nicht gesendet werden.";
+    $("formError").style.display="block";
+    return;
+  }
+
   $("success").innerHTML="<b>Krankmeldung wurde erfolgreich gesendet.</b><br>"+employee+" · "+days+" Tag"+(days===1?"":"e");
   $("success").style.display="block";
   $("shift").value=""; $("from").value=""; $("to").value="";
