@@ -77,8 +77,44 @@ function formatDate(s){const p=s.split('-');return p[2]+'.'+p[1]+'.'+p[0]}functi
 function monthStart(){return new Date(planMonth.getFullYear(),planMonth.getMonth(),1)}function monthEnd(){return new Date(planMonth.getFullYear(),planMonth.getMonth()+1,0)}function iso(d){return d.toISOString().slice(0,10)}function monthLabel(){return planMonth.toLocaleDateString('de-DE',{month:'long',year:'numeric'})}
 async function loadEmployees(){const {data,error}=await db.from('mitarbeiter').select('*').eq('active',true).order('name');if(error){names=fallbackNames.slice();fillEmployeeDatalist();return names}names=data.length?data.map(x=>x.name):fallbackNames.slice();fillEmployeeDatalist();return names}
 function fillEmployeeDatalist(){const list=$('employees');list.innerHTML=names.map(n=>`<option value="${escapeHtml(n)}">`).join('')}
-async function renderWorkplan(){const s=monthStart(),e=monthEnd();$('monthLabel').textContent=monthLabel();const days=[];for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(new Date(d));const dates=days.map(iso);const {data,error}=await db.from('arbeitsplan').select('*').gte('work_date',dates[0]).lte('work_date',dates[dates.length-1]);const entries=error?[]:(data||[]);const map={};entries.forEach(x=>map[x.employee+'|'+x.work_date]=x.shift);const head='<tr><th>Mitarbeiter</th>'+days.map(d=>`<th>${d.toLocaleDateString('de-DE',{weekday:'short'})}<br><span class="small">${String(d.getDate()).padStart(2,'0')}</span></th>`).join('')+'</tr>';$('workTable').querySelector('thead').innerHTML=head;let body=names.map(n=>`<tr><td>${escapeHtml(n)}</td>`+days.map(d=>{const ds=iso(d),v=map[n+'|'+ds]||'';return `<td class="shiftcell ${isAdmin?'editable':''}">${isAdmin?`<select data-name="${escapeHtml(n)}" data-date="${ds}" onchange="savePlanCell(this)"><option value="">—</option>${shiftOptions.map(o=>`<option value="${o}" ${v===o?'selected':''}>${o}</option>`).join('')}</select>`:escapeHtml(v||'—')}</td>`}).join('')+'</tr>`).join('');const counts={};days.forEach(d=>{const ds=iso(d);counts[ds]={};shiftOptions.slice(0,6).forEach(sh=>counts[ds][sh]=0);names.forEach(n=>{const v=map[n+'|'+ds];if(counts[ds][v]!==undefined)counts[ds][v]++})});body+=`<tr class="count-row"><td>👥 Anzahl Mitarbeiter</td>`+days.map(d=>{const c=counts[iso(d)];return `<td>${shiftOptions.slice(0,6).map(sh=>`${sh}: ${c[sh]}`).join('<br>')}</td>`}).join('')+'</tr>';$('workTable').querySelector('tbody').innerHTML=body;renderEmployeeAdmin();}
-async function savePlanCell(sel){if(!isAdmin)return;const employee=sel.dataset.name,work_date=sel.dataset.date,shift=sel.value;if(!shift){const r=await db.from('arbeitsplan').delete().eq('employee',employee).eq('work_date',work_date);if(r.error)alert('Fehler: '+r.error.message)}else{const r=await db.from('arbeitsplan').upsert({employee,work_date,shift},{onConflict:'employee,work_date'});if(r.error)alert('Fehler: '+r.error.message)}$('saveBar').style.display='block';setTimeout(()=>$('saveBar').style.display='none',1200);renderWorkplan()}
+async function renderWorkplan(){
+  const s=monthStart(), e=monthEnd();
+  $('monthLabel').textContent=monthLabel();
+  const days=[];
+  for(let d=new Date(s); d<=e; d.setDate(d.getDate()+1)) days.push(new Date(d));
+  const dates=days.map(iso);
+  const {data,error}=await db.from('arbeitsplan').select('*').gte('work_date',dates[0]).lte('work_date',dates[dates.length-1]);
+  const entries=error?[]:(data||[]);
+  const map={};
+  entries.forEach(x=>{map[x.employee+'|'+x.work_date]=x.shift});
+  const head='<tr><th>Mitarbeiter</th>'+days.map(d=>'<th>'+d.toLocaleDateString('de-DE',{weekday:'short'})+'<br><span class="small">'+String(d.getDate()).padStart(2,'0')+'</span></th>').join('')+'</tr>';
+  $('workTable').querySelector('thead').innerHTML=head;
+  let body='';
+  names.forEach(n=>{
+    body+='<tr><td>'+escapeHtml(n)+'</td>';
+    days.forEach(d=>{
+      const ds=iso(d), v=map[n+'|'+ds]||'';
+      if(isAdmin){
+        body+='<td class="shiftcell editable"><select data-name="'+escapeHtml(n)+'" data-date="'+ds+'" onchange="savePlanCell(this)"><option value="">—</option>';
+        shiftOptions.forEach(o=>{body+='<option value="'+escapeHtml(o)+'" '+(v===o?'selected':'')+'>'+escapeHtml(o)+'</option>'});
+        body+='</select></td>';
+      }else{
+        body+='<td class="shiftcell">'+escapeHtml(v||'—')+'</td>';
+      }
+    });
+    body+='</tr>';
+  });
+  body+='<tr class="count-row"><td>👥 Anzahl Mitarbeiter</td>';
+  days.forEach(d=>{
+    const ds=iso(d), c={};
+    shiftOptions.slice(0,6).forEach(sh=>c[sh]=0);
+    names.forEach(n=>{const v=map[n+'|'+ds]; if(c[v]!==undefined)c[v]++});
+    body+='<td>'+shiftOptions.slice(0,6).map(sh=>sh+': '+c[sh]).join('<br>')+'</td>';
+  });
+  body+='</tr>';
+  $('workTable').querySelector('tbody').innerHTML=body;
+  if(isAdmin) renderEmployeeAdmin();
+}
 $('prevMonth').onclick=()=>{planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()-1,1);renderWorkplan()};$('nextMonth').onclick=()=>{planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()+1,1);renderWorkplan()};$('todayMonth').onclick=()=>{const n=new Date();planMonth=new Date(n.getFullYear(),n.getMonth(),1);renderWorkplan()};
 async function renderEmployeeAdmin(){if(!isAdmin)return;const box=$('employeeAdminList');const {data,error}=await db.from('mitarbeiter').select('*').order('active',{ascending:false}).order('name');if(error){box.innerHTML='<div class="note">Mitarbeiter-Tabelle noch nicht eingerichtet.</div>';return}box.innerHTML=data.map(x=>`<div class="item"><span><b>${escapeHtml(x.name)}</b> <span class="pill">${x.active?'Aktiv':'Deaktiviert'}</span></span><span>${x.active?`<button class="secondary" onclick="toggleEmployee(${x.id},false)">Deaktivieren</button>`:`<button class="secondary" onclick="toggleEmployee(${x.id},true)">Aktivieren</button>`} <button class="danger" onclick="deleteEmployee(${x.id})">Löschen</button></span></div>`).join('')||'<p class="muted">Noch keine Mitarbeiter.</p>'}
 $('addEmployee').onclick=async()=>{if(!isAdmin)return;const name=$('newEmployee').value.trim();if(!name)return;const {error}=await db.from('mitarbeiter').insert({name,active:true});if(error){alert('Fehler: '+error.message);return}$('newEmployee').value='';await loadEmployees();renderEmployeeAdmin();renderWorkplan()};
