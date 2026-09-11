@@ -45,6 +45,10 @@ textarea{min-height:100px;resize:vertical}button{cursor:pointer}
 .menu-img{width:150px;height:100px;object-fit:cover;border-radius:10px;border:1px solid #ddd}
 .menu-card{display:flex;gap:16px;align-items:flex-start;border:1px solid #ddd;border-radius:12px;padding:14px;margin:12px 0}
 .photo-preview{max-width:220px;max-height:150px;border-radius:10px;margin-top:8px}
+.vac-year{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:18px}.vac-year-title{font-size:22px;font-weight:700;min-width:90px;text-align:center}.year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.mini-month{border:1px solid #dfe4ea;border-radius:12px;overflow:hidden;background:#fff}.mini-head{padding:10px;text-align:center;font-weight:700;background:#f6f8fa}.mini-days{display:grid;grid-template-columns:repeat(7,1fr);font-size:12px}.mini-dow{padding:6px 2px;text-align:center;font-weight:700;color:#667085;background:#fafbfc}.mini-day{min-height:48px;border-top:1px solid #edf0f3;border-right:1px solid #edf0f3;padding:4px;position:relative}.mini-day:nth-child(7n){border-right:0}.mini-day.empty{background:#fafbfc}.mini-day .num{font-weight:700}.vac-name{display:block;font-size:10px;line-height:1.1;margin-top:3px;padding:2px 3px;border-radius:4px;background:#e7f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vac-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.vac-form{background:#f6f8fa;border-radius:10px;padding:14px;margin-bottom:16px}.print-hide{}
+@media(max-width:900px){.year-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.year-grid{grid-template-columns:1fr}.mini-day{min-height:44px}}
+@media print{header,nav,.print-hide,.admin-only,.toolbar,.savebar{display:none!important}.layout{display:block}.content{max-width:none;padding:0}.card{box-shadow:none;border:0}.page{display:none!important}.page.active{display:block!important}#arbeitsplan .card:first-child{display:block}.tablewrap{overflow:visible}.table{min-width:0;font-size:9px}.table th,.table td{padding:4px}.shiftcell select{display:none}body{background:#fff}}
 @media(max-width:760px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;padding:7px;position:sticky;top:62px;z-index:19}nav button{min-width:max-content;text-align:center;padding:10px}.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.content{padding:18px 12px}.table{min-width:950px}}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.card{padding:17px}.menu-card{display:block}}
 </style>
@@ -93,7 +97,7 @@ textarea{min-height:100px;resize:vertical}button{cursor:pointer}
 <section id="arbeitsplan" class="page">
 <div class="card">
 <div class="row"><div><h1>📅 Arbeitsplan</h1><p class="muted">Monatsplan. Mitarbeiter können nur ansehen, Chef kann bearbeiten.</p></div>
-<div class="toolbar"><button class="secondary" id="prevMonth">←</button><div class="month-title" id="monthLabel"></div><button class="secondary" id="nextMonth">→</button><button class="secondary" id="todayMonth">Dieser Monat</button></div></div>
+<div class="toolbar"><button class="secondary" id="prevMonth">←</button><div class="month-title" id="monthLabel"></div><button class="secondary" id="nextMonth">→</button><button class="secondary" id="todayMonth">Dieser Monat</button><button class="primary print-hide" id="printPlan">🖨️ Drucken / PDF</button></div></div>
 <div class="help">Unter jedem Tag steht die Anzahl der Mitarbeiter in den Schichten <b>1, 3, 4, 5, 6 und 7</b>.</div>
 <div class="tablewrap" style="margin-top:14px"><table class="table" id="workTable"><thead></thead><tbody></tbody></table></div>
 <div class="savebar" id="saveBar"><b>Es gibt ungespeicherte Änderungen.</b> <button class="primary" id="savePlan">💾 Arbeitsplan speichern</button></div>
@@ -107,8 +111,13 @@ textarea{min-height:100px;resize:vertical}button{cursor:pointer}
 </section>
 
 <section id="urlaub" class="page">
-<div class="card"><div class="row"><div><h1>🏖️ Urlaubsplan</h1><p class="muted">Urlaubsübersicht der Küche.</p></div><button class="primary admin-only" id="addVacationBtn">+ Urlaub hinzufügen</button></div>
-<div class="tablewrap"><table class="table" id="vacationTable"><thead><tr><th>Mitarbeiter</th><th>Von</th><th>Bis</th><th>Status</th><th class="admin-only">Aktion</th></tr></thead><tbody></tbody></table></div></div>
+<div class="card">
+<div class="row"><div><h1>🏖️ Urlaubsplan</h1><p class="muted">Jahreskalender mit Urlaub nach einzelnen Tagen.</p></div><div class="vac-toolbar print-hide"><button class="secondary" id="prevVacYear">←</button><div class="vac-year-title" id="vacYearLabel"></div><button class="secondary" id="nextVacYear">→</button><button class="primary admin-only" id="addVacationBtn">+ Urlaub hinzufügen</button><button class="secondary" id="printVac">🖨️ Drucken / PDF</button></div></div>
+<div id="vacationForm" class="vac-form admin-only" style="display:none"><h3 style="margin-top:0">Urlaub eintragen</h3><div class="formgrid"><div><label>Mitarbeiter</label><select id="vacEmployee"></select></div><div><label>Von</label><input id="vacFrom" type="date"></div><div><label>Bis</label><input id="vacTo" type="date"></div><div style="display:flex;align-items:end;gap:8px"><button class="primary" id="saveVacation">💾 Speichern</button><button class="secondary" id="cancelVacation">Abbrechen</button></div></div><div class="error" id="vacError"></div></div>
+<div class="help">Jeder Urlaubstag wird im Kalender direkt beim jeweiligen Datum angezeigt. Der Kalender kann für jedes Jahr geöffnet und ausgedruckt werden.</div>
+<div id="vacationCalendar" class="year-grid" style="margin-top:14px"></div>
+</div>
+<div class="card admin-only print-hide"><h2>🏖️ Eingetragene Urlaube</h2><div id="vacationList"></div></div>
 </section>
 
 <section id="menu" class="page">
@@ -147,7 +156,7 @@ const $=id=>document.getElementById(id);
 let isAdmin=false, planMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
 let names=[], pendingPlan={};
 const defaultNames=["Tymechko Nazar","Fisunov Ostap","Yaroslav Marinovskiy","Eike Birkhofen"];
-const shiftOptions=["1","3","4","5","6","7"];
+const shiftOptions=["1","3","4","5","6","7","Frei","Urlaub","Krank"];
 
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
@@ -223,38 +232,17 @@ $("list").innerHTML=data?.length?data.map(x=>`<div class="item"><span><b>${escap
 async function deleteSick(id){if(!confirm("Krankmeldung wirklich löschen?"))return;const {error}=await db.from("krankmeldungen").delete().eq("id",id);if(error)alert("Fehler: "+error.message);else loadList()}
 
 async function renderWorkplan(){
-$("monthLabel").textContent=monthLabel();
-const s=monthStart(),e=monthEnd(),days=[];
-for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(new Date(d));
-const dates=days.map(iso);
-const {data,error}=await db.from("arbeitsplan").select("*").gte("work_date",dates[0]).lte("work_date",dates[dates.length-1]);
-const entries=error?[]:(data||[]),map={};
-entries.forEach(x=>map[x.employee+"|"+x.work_date]=x.shift);
-pendingPlan={};
-let head="<tr><th>Mitarbeiter</th>"+days.map(d=>`<th>${d.toLocaleDateString("de-DE",{weekday:"short"})}<br><span class="small">${String(d.getDate()).padStart(2,"0")}</span></th>`).join("")+"</tr>";
-$("workTable").querySelector("thead").innerHTML=head;
-let body="";
-names.forEach(n=>{
-body+=`<tr><td>${escapeHtml(n)}</td>`;
-days.forEach(d=>{
-const ds=iso(d),v=(pendingPlan[n+"|"+ds]??map[n+"|"+ds]??"");
-if(isAdmin){
-body+=`<td class="shiftcell editable"><select data-name="${escapeHtml(n)}" data-date="${ds}" onchange="planChanged(this)"><option value="">—</option>${shiftOptions.map(o=>`<option value="${o}" ${v===o?"selected":""}>${o}</option>`).join("")}</select></td>`;
-}else body+=`<td class="shiftcell">${escapeHtml(v||"—")}</td>`;
-});
-body+="</tr>";
-});
-body+=`<tr class="count-row"><td>👥 Anzahl Mitarbeiter</td>`;
-days.forEach(d=>{
-const ds=iso(d),c={};shiftOptions.forEach(sh=>c[sh]=0);
-names.forEach(n=>{const v=pendingPlan[n+"|"+ds]??map[n+"|"+ds]??"";if(c[v]!==undefined)c[v]++});
-body+=`<td>${shiftOptions.map(sh=>sh+": "+c[sh]).join("<br>")}</td>`;
-});
-body+="</tr>";
-$("workTable").querySelector("tbody").innerHTML=body;
-$("saveBar").style.display=isAdmin&&Object.keys(pendingPlan).length?"block":"none";
-if(isAdmin)renderEmployeeAdmin();
+ $("monthLabel").textContent=monthLabel();
+ const s=monthStart(),e=monthEnd(),days=[];for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(new Date(d));
+ const dates=days.map(iso);const {data,error}=await db.from("arbeitsplan").select("*").gte("work_date",dates[0]).lte("work_date",dates[dates.length-1]);
+ const entries=error?[]:(data||[]),map={};entries.forEach(x=>map[x.employee+"|"+x.work_date]=x.shift);pendingPlan={};
+ let head="<tr><th>Mitarbeiter</th>"+days.map(d=>`<th>${d.toLocaleDateString("de-DE",{weekday:"short"})}<br><span class="small">${String(d.getDate()).padStart(2,"0")}</span></th>`).join("")+"<th>Arbeit</th><th>Frei</th><th>Urlaub</th><th>Krank</th></tr>";$('workTable').querySelector('thead').innerHTML=head;
+ let body="";const workShifts=["1","3","4","5","6","7"];
+ names.forEach(n=>{let stats={work:0,free:0,urlaub:0,krank:0};body+=`<tr><td>${escapeHtml(n)}</td>`;days.forEach(d=>{const ds=iso(d),v=map[n+"|"+ds]||"";if(workShifts.includes(v))stats.work++;else if(v==="Frei"||!v)stats.free++;else if(v==="Urlaub")stats.urlaub++;else if(v==="Krank")stats.krank++;if(isAdmin)body+=`<td class="shiftcell editable"><select data-name="${escapeHtml(n)}" data-date="${ds}" onchange="planChanged(this)"><option value="">—</option>${shiftOptions.map(o=>`<option value="${o}" ${v===o?"selected":""}>${o}</option>`).join("")}</select></td>`;else body+=`<td class="shiftcell">${escapeHtml(v||"—")}</td>`});body+=`<td><b>${stats.work}</b></td><td><b>${stats.free}</b></td><td>${stats.urlaub}</td><td>${stats.krank}</td></tr>`});
+ body+=`<tr class="count-row"><td>👥 Anzahl pro Schicht</td>`;days.forEach(d=>{const ds=iso(d),c={};shiftOptions.forEach(sh=>c[sh]=0);names.forEach(n=>{const v=map[n+"|"+ds];if(c[v]!==undefined)c[v]++});body+=`<td>${workShifts.map(sh=>sh+": "+c[sh]).join("<br>")}</td>`});body+="<td colspan=4>—</td></tr>";
+ $("workTable").querySelector("tbody").innerHTML=body;$('saveBar').style.display=isAdmin&&Object.keys(pendingPlan).length?"block":"none";if(isAdmin)renderEmployeeAdmin();
 }
+
 function planChanged(el){pendingPlan[el.dataset.name+"|"+el.dataset.date]=el.value;$("saveBar").style.display="block";updateCountsOnly()}
 function updateCountsOnly(){
 const rows=$("workTable").querySelector("tbody").rows;if(!rows.length)return;
@@ -281,6 +269,7 @@ pendingPlan={};$("saveBar").style.display="none";await renderWorkplan();alert("A
 $("prevMonth").onclick=()=>{planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()-1,1);renderWorkplan()};
 $("nextMonth").onclick=()=>{planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()+1,1);renderWorkplan()};
 $("todayMonth").onclick=()=>{const n=new Date();planMonth=new Date(n.getFullYear(),n.getMonth(),1);renderWorkplan()};
+$("printPlan").onclick=()=>{showPage("arbeitsplan");setTimeout(()=>window.print(),100)};
 
 async function renderEmployeeAdmin(){
 if(!isAdmin)return;
@@ -315,16 +304,43 @@ if(isAdmin){$("shiftEditor").style.display="block";$("shiftEditor").innerHTML=`<
 }
 function saveShiftLocal(){const plans=getShiftPlans();plans[currentShift]=$("shiftTextEditor").value.split("\n").map(x=>x.trim()).filter(Boolean);localStorage.setItem("carecon_shiftplans",JSON.stringify(plans));renderShifts();alert("Schichtplan gespeichert.")}
 
+let vacationYear=new Date().getFullYear();
+let vacationData=[];
+function vacDays(from,to){const out=[];let d=new Date(from+"T00:00:00"),e=new Date(to+"T00:00:00");for(;d<=e;d.setDate(d.getDate()+1))out.push(iso(d));return out}
 async function loadVacations(){
-const body=$("vacationTable").querySelector("tbody"),{data,error}=await db.from("urlaub").select("*").order("date_from");
-if(error){body.innerHTML=`<tr><td colspan="5">Fehler: ${escapeHtml(error.message)}</td></tr>`;return}
-body.innerHTML=data?.length?data.map(x=>`<tr><td>${escapeHtml(x.employee)}</td><td>${formatDate(x.date_from)}</td><td>${formatDate(x.date_to)}</td><td><span class="pill">Geplant</span></td><td>${isAdmin?`<button class="danger" onclick="deleteVacation(${x.id})">Löschen</button>`:""}</td></tr>`).join(""):"<tr><td colspan='5' class='muted'>Keine Urlaube eingetragen.</td></tr>";
+ const cal=$("vacationCalendar"); cal.innerHTML="Lade…";
+ const {data,error}=await db.from("urlaub").select("*").order("date_from");
+ if(error){cal.innerHTML=`<div class="note">Fehler: ${escapeHtml(error.message)}</div>`;return}
+ vacationData=data||[]; $("vacYearLabel").textContent=vacationYear;
+ renderVacationCalendar();
+ if(isAdmin)renderVacationList();
+}
+function renderVacationCalendar(){
+ const cal=$("vacationCalendar"); const months=[]; const dows=["Mo","Di","Mi","Do","Fr","Sa","So"];
+ for(let m=0;m<12;m++){
+  const first=new Date(vacationYear,m,1), last=new Date(vacationYear,m+1,0), offset=(first.getDay()+6)%7;
+  let html=`<div class="mini-month"><div class="mini-head">${first.toLocaleDateString("de-DE",{month:"long"})}</div><div class="mini-days">${dows.map(x=>`<div class="mini-dow">${x}</div>`).join("")}`;
+  for(let i=0;i<offset;i++)html+='<div class="mini-day empty"></div>';
+  for(let day=1;day<=last.getDate();day++){
+   const ds=iso(new Date(vacationYear,m,day));
+   const people=vacationData.filter(v=>v.date_from<=ds&&v.date_to>=ds).map(v=>v.employee);
+   html+=`<div class="mini-day"><span class="num">${day}</span>${people.map(n=>`<span class="vac-name" title="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join("")}</div>`;
+  }
+  html+='</div></div>'; months.push(html);
+ }
+ cal.innerHTML=months.join("");
+}
+function renderVacationList(){
+ const box=$("vacationList");
+ if(!vacationData.length){box.innerHTML='<p class="muted">Keine Urlaube eingetragen.</p>';return}
+ box.innerHTML=vacationData.map(x=>`<div class="item"><span><b>${escapeHtml(x.employee)}</b><br>${formatDate(x.date_from)} – ${formatDate(x.date_to)}</span><button class="danger" onclick="deleteVacation(${x.id})">Löschen</button></div>`).join("");
 }
 async function deleteVacation(id){if(!confirm("Urlaub löschen?"))return;const {error}=await db.from("urlaub").delete().eq("id",id);if(error)alert("Fehler: "+error.message);else loadVacations()}
-$("addVacationBtn").onclick=async()=>{
-if(!isAdmin)return;const employee=prompt("Mitarbeiter:");if(!employee)return;const from=prompt("Von (YYYY-MM-DD):");if(!from)return;const to=prompt("Bis (YYYY-MM-DD):");if(!to)return;
-const {error}=await db.from("urlaub").insert({employee,date_from:from,date_to:to});if(error)alert("Fehler: "+error.message);else loadVacations();
-};
+$("addVacationBtn").onclick=async()=>{if(!isAdmin)return;await loadEmployees();$("vacEmployee").innerHTML=names.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");$("vacFrom").value="";$("vacTo").value="";$("vacError").style.display="none";$("vacationForm").style.display="block";};
+$("cancelVacation").onclick=()=>$("vacationForm").style.display="none";
+$("saveVacation").onclick=async()=>{const employee=$("vacEmployee").value,from=$("vacFrom").value,to=$("vacTo").value;if(!employee||!from||!to){$("vacError").textContent="Bitte alle Felder ausfüllen.";$("vacError").style.display="block";return}if(to<from){$("vacError").textContent="Bis darf nicht vor Von liegen.";$("vacError").style.display="block";return}const {error}=await db.from("urlaub").insert({employee,date_from:from,date_to:to});if(error){$("vacError").textContent="Fehler: "+error.message;$("vacError").style.display="block";return}$("vacationForm").style.display="none";vacationYear=new Date(from+"T00:00:00").getFullYear();loadVacations();};
+$("prevVacYear").onclick=()=>{vacationYear--;loadVacations()};$("nextVacYear").onclick=()=>{vacationYear++;loadVacations()};
+$("printVac").onclick=()=>{showPage("urlaub");setTimeout(()=>window.print(),100)};
 
 function fileToDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function loadMenus(){
