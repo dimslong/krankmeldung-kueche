@@ -51,6 +51,9 @@ textarea{min-height:100px;resize:vertical}button{cursor:pointer}
  .shiftcell.editable .shift-print{display:none}.shiftcell:not(.editable) .shift-print{display:inline}
 #printMonthTitle{display:none}
 .header-tools{display:flex;align-items:center;gap:8px}.lang-select{width:auto;min-width:150px;padding:9px 10px}.theme-btn{border:0;background:#eef2f6;border-radius:8px;padding:10px 12px;font-size:18px}.worker-stats{margin-top:14px}.worker-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.worker-stat{border:1px solid #e1e5ea;border-radius:10px;padding:12px}.worker-stat b{display:block;margin-bottom:7px}.holiday{background:#fff3cd!important}.holiday .num{color:#9a6700}.holiday-label{display:block;font-size:8px;line-height:1.1;margin-top:3px;color:#9a6700;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sick-mini{display:block;font-size:9px;line-height:1;margin-top:2px;color:#b42318;font-weight:700}
+/* Stationsbestellungen */
+.week-nav{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0}.week-title{font-size:20px;font-weight:700;min-width:210px;text-align:center}.week-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:14px}.day-card{border:1px solid #e1e5ea;border-radius:10px;padding:10px;min-height:150px;background:#fff}.day-card h3{margin:0 0 8px;font-size:15px}.order-row{border:1px solid #e1e5ea;border-radius:8px;padding:8px;margin:7px 0;cursor:pointer}.order-row:hover{border-color:#1769e0}.status{display:inline-block;padding:3px 7px;border-radius:14px;font-size:11px;font-weight:700}.status-new{background:#fff0f0;color:#b42318}.status-progress{background:#fff7df;color:#9a6700}.status-done{background:#eaf7ed;color:#217346}.order-items{margin:8px 0 0;padding-left:18px}.qty{width:90px!important}.station-code-box{max-width:520px}.order-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.order-item{display:grid;grid-template-columns:1fr 110px 90px;gap:10px;align-items:center;border-bottom:1px solid #edf0f3;padding:8px 0}.order-item:last-child{border-bottom:0}.tea-title{font-weight:700;margin-top:14px}.archive-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.archive-filter select{width:auto;min-width:160px}@media(max-width:760px){.week-days{grid-template-columns:1fr}.order-form-grid{grid-template-columns:1fr}.order-item{grid-template-columns:1fr 90px 75px}.week-title{min-width:150px}}
+
 body.dark{background:#111827;color:#e5e7eb}body.dark header,body.dark .card,body.dark .tile,body.dark .modalbox,body.dark .mini-month{background:#1f2937;color:#e5e7eb}body.dark .muted{color:#aeb8c6}body.dark input,body.dark select,body.dark textarea{background:#111827;color:#e5e7eb;border-color:#4b5563}body.dark .secondary,body.dark .theme-btn{background:#374151;color:#f3f4f6}body.dark .table th,body.dark .table td{border-color:#4b5563}body.dark .table th,body.dark .count-row td{background:#273244!important}body.dark .table td:first-child,body.dark .table th:first-child{background:#1f2937}body.dark .mini-head,body.dark .mini-dow{background:#273244}body.dark .mini-day{border-color:#374151}body.dark .mini-day.empty{background:#1b2431}body.dark .vac-form,body.dark .help,body.dark .note{background:#273244;border-color:#4b5563}body.dark .item{border-color:#4b5563}body.dark .worker-stat{border-color:#4b5563}
 @media(max-width:760px){.header-tools{gap:5px}.lang-select{min-width:0;width:44px;font-size:0}.lang-select option{font-size:16px}.theme-btn{padding:9px}.worker-stats{padding:14px}}
 @media print{
@@ -89,6 +92,7 @@ body{background:#fff!important}
 <button data-page="krank">🤒 Krankmeldung</button>
 <button data-page="arbeitsplan">📅 Arbeitsplan</button>
 <button data-page="schichten">👨‍🍳 Schichtpläne</button>
+<button data-page="bestellungen">🛒 Stationsbedarf</button>
 <button data-page="urlaub">🏖️ Urlaubsplan</button>
 <button data-page="menu">🍽️ Menüplan</button>
 <button data-page="mitteilungen">📢 Mitteilungen</button>
@@ -102,6 +106,7 @@ body{background:#fff!important}
 <div class="tile" data-go="krank"><div class="icon">🤒</div><h3>Krankmeldung</h3><p class="muted">Krankmeldung schnell senden.</p></div>
 <div class="tile" data-go="arbeitsplan"><div class="icon">📅</div><h3>Arbeitsplan</h3><p class="muted">Monatsplan ansehen.</p></div>
 <div class="tile" data-go="schichten"><div class="icon">👨‍🍳</div><h3>Schichtpläne</h3><p class="muted">Abläufe der Schichten.</p></div>
+<div class="tile" data-go="bestellungen"><div class="icon">🛒</div><h3>Stationsbedarf</h3><p class="muted">Bestellungen der Wohnbereiche.</p></div>
 <div class="tile" data-go="urlaub"><div class="icon">🏖️</div><h3>Urlaubsplan</h3><p class="muted">Urlaube ansehen.</p></div>
 <div class="tile" data-go="menu"><div class="icon">🍽️</div><h3>Menüplan</h3><p class="muted">Menüs und Fotos ansehen.</p></div>
 <div class="tile" data-go="mitteilungen"><div class="icon">📢</div><h3>Mitteilungen</h3><p class="muted">Wichtige Informationen.</p></div>
@@ -136,6 +141,40 @@ body{background:#fff!important}
 <section id="schichten" class="page">
 <div class="card"><h1>👨‍🍳 Schichtpläne</h1><p class="muted">Abläufe der Küchenschichten.</p><div class="row" id="shiftButtons"></div></div>
 <div class="card"><div class="row"><h2 id="shiftTitle">Schicht 5</h2><button class="primary admin-only" id="editShiftPlan">Schichtplan bearbeiten</button></div><div id="shiftContent"></div><div id="shiftEditor" class="admin-only"></div></div>
+</section>
+
+<section id="bestellungen" class="page">
+<div class="card">
+<h1>🛒 Stationsbedarf</h1>
+<p class="muted">Bestellungen nach Station aufgeben und später im Wochenplan wiederfinden.</p>
+<div id="stationUnlock">
+<div class="station-code-box">
+<label>Wohnbereich / Station</label>
+<select id="orderStation"><option>WB 1</option><option>WB 2</option><option>WB 3</option><option>WB 4</option><option>WB 5</option><option>WB 6</option><option>Station 1/2</option><option>Station 3/4</option><option>Station 5/6</option></select>
+<label>Zugangscode</label><input id="stationCode" type="password" inputmode="numeric" placeholder="Code eingeben">
+<button class="primary" id="unlockOrder" style="margin-top:10px">Bestellung öffnen</button>
+<div class="error" id="orderUnlockError"></div>
+</div></div>
+<div id="orderArea" style="display:none">
+<div class="card" style="background:#f6f8fa">
+<div class="order-form-grid"><div><label>Abgabedatum</label><input id="orderDate" type="date"></div><div><label>Name</label><input id="orderName" placeholder="Name"></div></div>
+<div id="orderItems" style="margin-top:12px"></div>
+<label>Sonstiges</label><textarea id="orderOther" placeholder="Weitere Wünsche"></textarea>
+<div class="row" style="margin-top:14px"><button class="secondary" id="lockOrder">🔒 Sperren</button><button class="primary" id="submitOrder">🛒 Bestellung absenden</button></div>
+<div class="success" id="orderSuccess"></div><div class="error" id="orderError"></div>
+</div></div>
+</div>
+</div>
+<div class="card">
+<div class="row"><div><h2>📅 Bestellungen – Wochenübersicht</h2><p class="muted">Hier sieht die Küche, welche Station an welchem Wochentag bestellt hat.</p></div></div>
+<div class="week-nav"><button class="secondary" id="prevOrderWeek">←</button><div class="week-title" id="orderWeekLabel"></div><button class="secondary" id="nextOrderWeek">→</button><button class="secondary" id="todayOrderWeek">Diese Woche</button></div>
+<div id="orderWeekGrid" class="week-days"></div>
+</div>
+<div class="card">
+<h2>🗃️ Bestellungsarchiv</h2>
+<div class="archive-filter"><select id="archiveStation"><option value="">Alle Stationen</option><option>WB 1</option><option>WB 2</option><option>WB 3</option><option>WB 4</option><option>WB 5</option><option>WB 6</option><option>Station 1/2</option><option>Station 3/4</option><option>Station 5/6</option></select><select id="archiveStatus"><option value="">Alle Status</option><option value="Neu">Neu</option><option value="In Bearbeitung">In Bearbeitung</option><option value="Erledigt">Erledigt</option></select></div>
+<div id="orderArchive"></div>
+</div>
 </section>
 
 <section id="urlaub" class="page">
@@ -228,8 +267,8 @@ function translateStatic(){document.querySelectorAll('[data-carecon-src]').forEa
 
 async function applyLanguage(){
  document.documentElement.lang=currentLang;
- const nav=[['home','navHome'],['krank','navSick'],['arbeitsplan','navPlan'],['schichten','navShifts'],['urlaub','navVac'],['menu','navMenu'],['mitteilungen','navNotice'],['admin','navAdmin']];
- const icons={home:'🏠 ',krank:'🤒 ',arbeitsplan:'📅 ',schichten:'👨‍🍳 ',urlaub:'🏖️ ',menu:'🍽️ ',mitteilungen:'📢 ',admin:'⚙️ '};
+ const nav=[['home','navHome'],['krank','navSick'],['arbeitsplan','navPlan'],['schichten','navShifts'],['bestellungen','navOrders'],['urlaub','navVac'],['menu','navMenu'],['mitteilungen','navNotice'],['admin','navAdmin']];
+ const icons={home:'🏠 ',krank:'🤒 ',arbeitsplan:'📅 ',schichten:'👨‍🍳 ',bestellungen:'🛒 ',urlaub:'🏖️ ',menu:'🍽️ ',mitteilungen:'📢 ',admin:'⚙️ '};
  nav.forEach(([id,k])=>{const b=document.querySelector(`nav button[data-page="${id}"]`);if(b)b.textContent=icons[id]+tr(k)});
  translateStatic(); if($('planHelpText'))$('planHelpText').textContent=tr('helpPlan');
  $('workplanHeading').textContent='📅 '+tr('navPlan')+' – '+monthLabel(); if($('printMonthTitle'))$('printMonthTitle').textContent=tr('navPlan')+' – '+monthLabel(); if($('printMonthTitle'))$('printMonthTitle').textContent=tr('navPlan')+' – '+monthLabel();
@@ -252,6 +291,7 @@ page.classList.add("active");
 document.querySelectorAll("nav button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
 if(id==="arbeitsplan")renderWorkplan();
 if(id==="schichten")renderShifts();
+if(id==="bestellungen")renderOrderDemo();
 if(id==="urlaub")loadVacations();
 if(id==="menu")loadMenus();
 if(id==="mitteilungen")loadNotices();
@@ -505,6 +545,6 @@ const {data:{session}}=await db.auth.getSession();
 if(session?.user?.email===ADMIN_EMAIL)isAdmin=true;
 setAdminUI();markStatic();await loadEmployees();await renderWorkplan();renderShifts();applyLanguage();
 })();
-</script>
+\n/* Stationsbestellungen – UI prototype. Database integration comes next. */\nconst ORDER_STATIONS=['WB 1','WB 2','WB 3','WB 4','WB 5','WB 6','Station 1/2','Station 3/4','Station 5/6'];\nconst ORDER_ITEMS=[\n['Petersilientopf','St.'],['Schnittlauchtopf','St.'],['Serviettenpaket','Pak.'],['Frischhaltefolie 33 cm perforiert','Rolle'],['Butter 250 g','St.'],['Halbfettmargarine 10 g','St.'],['Nussnougat 500 g','Glas'],['Marmeladenglas 500 g','Glas'],['Honig 500 g','Glas'],['Quark 40 %','St.'],['Streichwursthafen','St.'],['Schmelzkäse-Port.','St.'],['Frischkäse-Port.','St.'],['Würfelzucker-Paket','Pak.'],['Zucker','kg'],['Milch 3,5 %','L'],['Kaffeesahne','L'],['Kakaopulver 800 g','Pak.'],['Süßstoffspender 1000 St.','Pak.'],['Haferflocken 500 g','Pak.'],['Zwieback-Paket','Pak.'],['Obst gemischt','St.'],['Bananen','St.'],['Malto Cal 1,5 kg','Pak.'],['Kaffeekonzentrat 2 L','Fl.'],['Saftkonzentrat','Pak.'],['Teebeutel-Packung 24 St.','Pak.']\n];\nconst TEAS=['Schwarz','Früchte','Kamille','Pfefferminz','Fenchel','Hagebutte','Kräuter'];\nlet orderWeekStart=new Date(); orderWeekStart.setHours(0,0,0,0); orderWeekStart.setDate(orderWeekStart.getDate()-((orderWeekStart.getDay()+6)%7));\nfunction orderIso(d){return d.toISOString().slice(0,10)}\nfunction orderWeekDates(){return Array.from({length:7},(_,i)=>{const d=new Date(orderWeekStart);d.setDate(d.getDate()+i);return d})}\nfunction orderWeekLabel(){const ds=orderWeekDates();return `KW ${getISOWeek(ds[0])} · ${ds[0].toLocaleDateString('de-DE')} – ${ds[6].toLocaleDateString('de-DE')}`}\nfunction getISOWeek(d){const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);const y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}\nfunction renderOrderItems(){const box=$('orderItems'); if(!box)return; let html='<h3 style="margin-bottom:4px">Bedarf</h3>'; ORDER_ITEMS.forEach((x,i)=>{html+=`<div class="order-item"><div>${escapeHtml(x[0])}</div><input class="qty" data-order-item="${i}" type="number" min="0" step="1" placeholder="0"><div>${escapeHtml(x[1])}</div></div>`}); html+='<div class="tea-title">Teebeutel</div>'; TEAS.forEach((x,i)=>{html+=`<div class="order-item"><div>${escapeHtml(x)}</div><input class="qty" data-tea="${i}" type="number" min="0" step="1" placeholder="0"><div>St.</div></div>`}); box.innerHTML=html}\nfunction demoOrders(){const key='carecon_bestellungen_demo';try{const x=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(x)&&x.length)return x}catch(e){};const ds=orderWeekDates();return [{id:'demo1',station:'WB 1',date:orderIso(ds[0]),name:'Mitarbeiter',status:'Erledigt',items:[['Butter 250 g',5,'St.'],['Milch 3,5 %',4,'L']]},{id:'demo2',station:'WB 4',date:orderIso(ds[2]),name:'Mitarbeiter',status:'Neu',items:[['Serviettenpaket',3,'Pak.'],['Obst gemischt',10,'St.']]},{id:'demo3',station:'Station 1/2',date:orderIso(ds[4]),name:'Mitarbeiter',status:'In Bearbeitung',items:[['Kaffeesahne',2,'L'],['Schwarz',1,'St.']]}]}\nfunction renderOrderDemo(){renderOrderItems();$('orderWeekLabel').textContent=orderWeekLabel();renderOrderWeek();renderOrderArchive();const t=new Date();$('orderDate').value=orderIso(t)}\nfunction renderOrderWeek(){const grid=$('orderWeekGrid');if(!grid)return;const days=orderWeekDates(),orders=demoOrders();const names=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];grid.innerHTML=days.map((d,i)=>{const ds=orderIso(d),os=orders.filter(o=>o.date===ds);return `<div class="day-card"><h3>${names[i]}<br><span class="muted small">${d.toLocaleDateString('de-DE')}</span></h3>${os.length?os.map(o=>`<div class="order-row"><b>${escapeHtml(o.station)}</b><br><span class="status ${o.status==='Neu'?'status-new':o.status==='Erledigt'?'status-done':'status-progress'}">${escapeHtml(o.status)}</span><ul class="order-items">${o.items.map(it=>`<li>${escapeHtml(it[0])}: ${it[1]} ${escapeHtml(it[2])}</li>`).join('')}</ul></div>`).join(''):'<span class="muted small">Keine Bestellung</span>'}</div>`}).join('')}\nfunction renderOrderArchive(){const box=$('orderArchive');if(!box)return;let orders=demoOrders();const st=$('archiveStation')?.value||'',status=$('archiveStatus')?.value||'';if(st)orders=orders.filter(o=>o.station===st);if(status)orders=orders.filter(o=>o.status===status);orders.sort((a,b)=>b.date.localeCompare(a.date));box.innerHTML=orders.length?orders.map(o=>`<div class="item"><div><b>${escapeHtml(o.station)}</b><div class="small muted">${new Date(o.date+'T12:00:00').toLocaleDateString('de-DE')} · ${escapeHtml(o.name||'')}</div></div><div><span class="status ${o.status==='Neu'?'status-new':o.status==='Erledigt'?'status-done':'status-progress'}">${escapeHtml(o.status)}</span></div></div>`).join(''):'<p class="muted">Keine Bestellungen gefunden.</p>'}\n$('unlockOrder').onclick=()=>{const code=$('stationCode').value.trim();if(!code){$('orderUnlockError').textContent='Bitte Zugangscode eingeben.';$('orderUnlockError').style.display='block';return}/* Demo only: real validation will be done in Supabase. */$('orderUnlockError').style.display='none';$('stationUnlock').style.display='none';$('orderArea').style.display='block';$('orderSuccess').style.display='none';$('orderError').style.display='none';};\n$('lockOrder').onclick=()=>{$('orderArea').style.display='none';$('stationUnlock').style.display='block';$('stationCode').value='';};\n$('submitOrder').onclick=()=>{const station=$('orderStation').value,date=$('orderDate').value,name=$('orderName').value.trim();if(!date||!name){$('orderError').textContent='Bitte Abgabedatum und Name ausfüllen.';$('orderError').style.display='block';return}const items=[];document.querySelectorAll('[data-order-item]').forEach(inp=>{const q=Number(inp.value||0);if(q>0){const x=ORDER_ITEMS[Number(inp.dataset.orderItem)];items.push([x[0],q,x[1]])}});document.querySelectorAll('[data-tea]').forEach(inp=>{const q=Number(inp.value||0);if(q>0)items.push([TEAS[Number(inp.dataset.tea)],q,'St.'])});if(!items.length&& !$('orderOther').value.trim()){ $('orderError').textContent='Bitte mindestens einen Artikel oder Sonstiges angeben.';$('orderError').style.display='block';return}const order={id:'local-'+Date.now(),station,date,name,status:'Neu',items,other:$('orderOther').value.trim()};const all=demoOrders().filter(o=>!String(o.id).startsWith('demo'));all.push(order);localStorage.setItem('carecon_bestellungen_demo',JSON.stringify(all));$('orderSuccess').textContent='Bestellung wurde als Demo gespeichert. Die Supabase-Speicherung und E-Mail kommen im nächsten Schritt.';$('orderSuccess').style.display='block';$('orderError').style.display='none';renderOrderWeek();renderOrderArchive();};\n$('prevOrderWeek').onclick=()=>{orderWeekStart.setDate(orderWeekStart.getDate()-7);renderOrderDemo()};$('nextOrderWeek').onclick=()=>{orderWeekStart.setDate(orderWeekStart.getDate()+7);renderOrderDemo()};$('todayOrderWeek').onclick=()=>{orderWeekStart=new Date();orderWeekStart.setHours(0,0,0,0);orderWeekStart.setDate(orderWeekStart.getDate()-((orderWeekStart.getDay()+6)%7));renderOrderDemo()};$('archiveStation').onchange=renderOrderArchive;$('archiveStatus').onchange=renderOrderArchive;\n</script>
 </body>
 </html>
