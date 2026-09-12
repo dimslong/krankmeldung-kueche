@@ -1450,6 +1450,17 @@ $('themeBtn').onclick=toggleTheme;
   orderWeekStart=d;
   initBestellungen();
 })();
+/* ==================== ПЕЧАТЬ ЗАКАЗА ==================== */
+document.body.addEventListener('click',function(e){
+  const t=e.target.closest('#orderModalPrint');
+  if(!t)return;
+  e.preventDefault();
+  document.body.classList.add('printing-order');
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>document.body.classList.remove('printing-order'),500);
+  },150);
+},true);
 </script>
 </body>
 </html>
